@@ -57,40 +57,40 @@
     <entry lang="vi" key="IDC_NO_HISTORY">Đừng bao giờ &amp;lưu lược sử</entry>
     <entry lang="vi" key="IDC_OPEN_OUTER_VOLUME">Mở tập đĩa bên ngoài</entry>
     <entry lang="vi" key="IDC_PAUSE">&amp;Tạm dừng</entry>
-    <entry lang="vi" key="IDC_PIM_ENABLE">Dùng mã P&amp;IM</entry>
-    <entry lang="vi" key="IDC_NEW_PIM_ENABLE">Dùng mã PIM</entry>
+    <entry lang="vi" key="IDC_PIM_ENABLE">Dùng số P&amp;IM</entry>
+    <entry lang="vi" key="IDC_NEW_PIM_ENABLE">Dùng số PIM</entry>
     <entry lang="vi" key="IDC_QUICKFORMAT">Định dạng nhanh</entry>
     <entry lang="vi" key="IDC_SHOW_PASSWORD">&amp;Hiển thị mật mã</entry>
     <entry lang="vi" key="IDC_SHOW_PASSWORD_SINGLE">&amp;Hiển thị mật mã</entry>
-    <entry lang="vi" key="IDC_SHOW_PIM">&amp;Hiển thị mã PIM</entry>
+    <entry lang="vi" key="IDC_SHOW_PIM">&amp;Hiển thị số PIM</entry>
     <entry lang="vi" key="IDC_SINGLE_BOOT">Khởi động đơn hệ</entry>
     <entry lang="vi" key="IDC_STD_VOL">Tập đĩa VeraCrypt chuẩn</entry>
     <entry lang="vi" key="IDC_SYSENC_HIDDEN">Ẩ&amp;n</entry>
     <entry lang="vi" key="IDC_SYSENC_NORMAL">Thông thường</entry>
-    <entry lang="vi" key="IDC_SYS_DEVICE">Mã hóa phân vùng hệ thống hoặc nguyên cả ổ đĩa hệ thống</entry>
+    <entry lang="vi" key="IDC_SYS_DEVICE">Mã hóa phân vùng hệ thống hoặc toàn bộ ổ cứng của hệ thống</entry>
     <entry lang="vi" key="IDC_SYS_PARTITION">Mã hóa phân vùng hệ thống của Windows</entry>
-    <entry lang="vi" key="IDC_WHOLE_SYS_DRIVE">Mã hóa nguyên cả ổ đĩa</entry>
+    <entry lang="vi" key="IDC_WHOLE_SYS_DRIVE">Mã hóa toàn bộ ổ cứng</entry>
     <entry lang="vi" key="IDD_VOL_CREATION_WIZARD_DLG">Trợ lý Cấu tạo Tập đĩa VeraCrypt</entry>
     <entry lang="vi" key="IDT_CLUSTER">Cụm</entry>
-    <entry lang="vi" key="IDT_COLLECTING_RANDOM_DATA_NOTE">QUAN TRỌNG: Di chuyển con chuột của bạn càng ngẫu nhiên càng tốt trong cửa sổ này. Bạn di chuyển nó càng lâu càng tốt. Việc này gia tăng cường độ mật mã của các khóa mã hóa. Sau đó nhấn Kế tiếp để tiếp tục.</entry>
+    <entry lang="vi" key="IDT_COLLECTING_RANDOM_DATA_NOTE">QUAN TRỌNG: Di chuyển con chuột của bạn một cách ngẫu nhiên nhất có thể trong cửa sổ này. Bạn di chuyển nó càng lâu càng tốt. Việc này gia tăng đáng kể cường độ mật mã của các khóa mã hóa. Sau đó nhấn Kế tiếp để tiếp tục.</entry>
     <entry lang="vi" key="IDT_CONFIRM">&amp;Xác nhận:</entry>
     <entry lang="vi" key="IDT_DONE">Hoàn tất</entry>
     <entry lang="en" key="IDT_DRIVE_LETTER">Drive letter:</entry>
     <entry lang="vi" key="IDT_ENCRYPTION_ALGO">Giải thuật mã hóa</entry>
     <entry lang="vi" key="IDT_FILESYSTEM">Hệ thống tập tin</entry>
-    <entry lang="vi" key="IDT_FILE_CONTAINER">Cấu tạo một đĩa được mã hóa ảo bên trong một tập tin. Thích hợp cho người dùng không kinh nghiệm.</entry>
+    <entry lang="vi" key="IDT_FILE_CONTAINER">Tạo một đĩa ảo được mã hóa bên trong một tập tin. Thích hợp cho người dùng không có kinh nghiệm.</entry>
     <entry lang="vi" key="IDT_FORMAT_OPTIONS">Tùy chọn</entry>
     <entry lang="vi" key="IDT_HASH_ALGO">Thuật toán Ước tính</entry>
     <entry lang="vi" key="IDT_HEADER_KEY">Khóa Đầu:</entry>
     <entry lang="vi" key="IDT_LEFT">Trái</entry>
     <entry lang="vi" key="IDT_MASTER_KEY">Khóa Chính:</entry>
-    <entry lang="vi" key="IDT_MULTI_BOOT">Chọn tùy chọn này nếu có hai hệ điều hành hay nhiều hơn được cài đặt trong máy điện toán này.\n\nVí dụ:\n- Windows XP và Windows XP\n- Windows XP và Windows Vista\n- Windows và Mac OS X\n- Windows và Linux\n- Windows, Linux và Mac OS X</entry>
-    <entry lang="vi" key="IDT_NON_SYS_DEVICE">Mã hóa một phân vùng vô hệ trên bất cứ ổ đĩa bên trong hay bên ngoài (ví dụ như một ổ đĩa flash). Cũng có thể cấu tạo một tập đĩa dấu được.</entry>
+    <entry lang="vi" key="IDT_MULTI_BOOT">Chọn tùy chọn này nếu có hai hệ điều hành hoặc nhiều hơn được cài đặt trong máy tính này.\n\nVí dụ:\n- Windows XP và Windows XP\n- Windows XP và Windows Vista\n- Windows và Mac OS X\n- Windows và Linux\n- Windows, Linux và Mac OS X</entry>
+    <entry lang="vi" key="IDT_NON_SYS_DEVICE">Mã hóa một phân vùng không của hệ thống trên bất cứ ổ đĩa gắn trong hoặc gắn ngoài nào (ví dụ như một ổ đĩa flash). Cũng có thể tạo một ổ đĩa ẩn.</entry>
     <entry lang="vi" key="IDT_PARTIAL_POOL_CONTENTS">Nội dung gộp chung hiện tại (một phần)</entry>
     <entry lang="vi" key="IDT_PASS">Mật</entry>
     <entry lang="vi" key="IDT_PASSWORD">Mật mã:</entry>
-    <entry lang="en" key="IDT_PIM">Volume PIM:</entry>
-    <entry lang="en" key="IDT_OLD_PIM">Volume PIM:</entry>
+    <entry lang="en" key="IDT_PIM">Số PIM của ổ đĩa:</entry>
+    <entry lang="en" key="IDT_OLD_PIM">Số PIM của ổ đĩa:</entry>
     <entry lang="vi" key="IDT_PROGRESS">Tiến triển:</entry>
     <entry lang="vi" key="IDT_RANDOM_POOL">Gộp chung Ngẫu nhiên:</entry>
     <entry lang="vi" key="IDT_SINGLE_BOOT">Chọn tùy chọn này nếu chỉ có một hệ điều hành được cài đặt trong máy điện toán này (ngay cả nếu nó được dùng bởi nhiều người).</entry>
@@ -148,145 +148,145 @@
     <entry lang="vi" key="IDC_MORE_INFO_ON_HW_ACCELERATION">Thêm thông tin</entry>
     <entry lang="vi" key="IDC_MORE_INFO_ON_THREAD_BASED_PARALLELIZATION">Thêm thông tin</entry>
     <entry lang="vi" key="IDC_MORE_SETTINGS">Thêm Thiết lập...</entry>
-    <entry lang="vi" key="IDC_MOUNTALL">Các Thiết bị &amp;Tự-Nạp lên</entry>
+    <entry lang="vi" key="IDC_MOUNTALL">&amp;Tự động gắn các thiết bị</entry>
     <entry lang="vi" key="IDC_MOUNT_OPTIONS">Nạp Tùy &amp;chọn lên...</entry>
     <entry lang="vi" key="IDC_MOUNT_READONLY">Nạp tập đĩa kiểu chỉ-đọc lên</entry>
     <entry lang="vi" key="IDC_NEW_KEYFILES">Tập tin khóa...</entry>
-    <entry lang="en" key="IDC_OLD_PIM_HELP">(Empty or 0 for default iterations)</entry>
-    <entry lang="en" key="IDC_PIM_HELP">(Empty or 0 for default iterations)</entry>
+    <entry lang="en" key="IDC_OLD_PIM_HELP">(Bỏ trống hoặc điển 0 cho giá trị mặc định)</entry>
+    <entry lang="en" key="IDC_PIM_HELP">(Bỏ trống hoặc điển 0 cho giá trị mặc định)</entry>
     <entry lang="vi" key="IDC_PREF_BKG_TASK_ENABLE">Được bật lên</entry>
     <entry lang="vi" key="IDC_PREF_CACHE_PASSWORDS">Tạm trữ mật mã trong bộ nhớ của trình điều khiển</entry>
-    <entry lang="vi" key="IDC_PREF_UNMOUNT_INACTIVE">Tự-tháo tập đĩa xuống sau khi không có dữ liệu nào được đọc/viết vào nó trong</entry>
+    <entry lang="vi" key="IDC_PREF_UNMOUNT_INACTIVE">Tự động tháo ổ đĩa nếu không có dữ liệu nào được đọc/viết vào nó trong</entry>
     <entry lang="vi" key="IDC_PREF_UNMOUNT_LOGOFF">Người dùng đăng xuất</entry>
-    <entry lang="en" key="IDC_PREF_UNMOUNT_SESSION_LOCKED">User session locked</entry>
+    <entry lang="vi" key="IDC_PREF_UNMOUNT_SESSION_LOCKED">Người dùng khóa phiên</entry>
     <entry lang="vi" key="IDC_PREF_UNMOUNT_POWERSAVING">Đang vào phương thức tiết kiệm năng lượng</entry>
     <entry lang="vi" key="IDC_PREF_UNMOUNT_SCREENSAVER">Bảo vệ màn hình được khởi chạy</entry>
-    <entry lang="vi" key="IDC_PREF_FORCE_AUTO_UNMOUNT">Bắt buộc tự-tháo xuống ngay cả nếu tập đĩa có chứa tập tin hay thư mục còn mở</entry>
+    <entry lang="vi" key="IDC_PREF_FORCE_AUTO_UNMOUNT">Buộc tự động tháo ngay cả khi ổ đĩa còn tập tin hay thư mục đang mở</entry>
     <entry lang="vi" key="IDC_PREF_LOGON_MOUNT_DEVICES">Nạp tất cả các tập đĩa VeraCrypt có thiết bị làm chủ lên</entry>
     <entry lang="vi" key="IDC_PREF_LOGON_START">Bắt đầu Tác vụ Phụ của VeraCrypt</entry>
-    <entry lang="vi" key="IDC_PREF_MOUNT_READONLY">Nạp các tập đĩa kiểu chỉ-đọc lên</entry>
-    <entry lang="vi" key="IDC_PREF_MOUNT_REMOVABLE">Nạp các tập đĩa kiểu môi trường chứa rời được lên</entry>
-    <entry lang="vi" key="IDC_PREF_OPEN_EXPLORER">Mở cửa sổ Explorer của tập đĩa được nạp lên thành công</entry>
+    <entry lang="vi" key="IDC_PREF_MOUNT_READONLY">Gắn ổ đĩa thành dạng chỉ đọc</entry>
+    <entry lang="vi" key="IDC_PREF_MOUNT_REMOVABLE">Gắn ổ đĩa thành dạng phương tiện có thể tháo rời</entry>
+    <entry lang="vi" key="IDC_PREF_OPEN_EXPLORER">Mở cửa sổ Explorer của ổ đĩa được gắn thành công</entry>
     <entry lang="en" key="IDC_PREF_TEMP_CACHE_ON_MULTIPLE_MOUNT">Temporarily cache password during "Mount Favorite Volumes" operations</entry>
-    <entry lang="en" key="IDC_PREF_USE_DIFF_TRAY_ICON_IF_VOL_MOUNTED">Use a different taskbar icon when there are mounted volumes</entry>
-    <entry lang="vi" key="IDC_PREF_WIPE_CACHE_ON_AUTOUNMOUNT">Xóa mật mã được tạm trữ khi tự-tháo xuống</entry>
-    <entry lang="vi" key="IDC_PREF_WIPE_CACHE_ON_EXIT">Xóa mật mã được tạm trữ khi ra khỏi</entry>
-    <entry lang="vi" key="IDC_PRESERVE_TIMESTAMPS">Duy trì dấu giờ của các bộ chứa tập tin</entry>
+    <entry lang="vi" key="IDC_PREF_USE_DIFF_TRAY_ICON_IF_VOL_MOUNTED">Dùng một biểu tượng khác ở thanh tác vụ khi có ổ đĩa được gắn</entry>
+    <entry lang="vi" key="IDC_PREF_WIPE_CACHE_ON_AUTOUNMOUNT">Xóa mật mã tạm trữ khi tháo ổ đĩa tự động</entry>
+    <entry lang="vi" key="IDC_PREF_WIPE_CACHE_ON_EXIT">Xóa mật mã tạm trữ khi thoát phần mềm</entry>
+    <entry lang="vi" key="IDC_PRESERVE_TIMESTAMPS">Giữ dấu thời gian của các bộ chứa tập tin</entry>
     <entry lang="vi" key="IDC_RESET_HOTKEYS">Đặt lại</entry>
-    <entry lang="vi" key="IDC_SELECT_DEVICE">Chọn Thiết bị...</entry>
-    <entry lang="vi" key="IDC_SELECT_FILE">Chọn Tập tin...</entry>
+    <entry lang="vi" key="IDC_SELECT_DEVICE">Chọn T&amp;hiết bị...</entry>
+    <entry lang="vi" key="IDC_SELECT_FILE">Chọn Tập t&amp;in...</entry>
     <entry lang="vi" key="IDC_SELECT_PKCS11_MODULE">Chọn &amp;Thư viện...</entry>
     <entry lang="vi" key="IDC_SHOW_PASSWORD_CHPWD_NEW">Hiển thị mật mã</entry>
     <entry lang="vi" key="IDC_SHOW_PASSWORD_CHPWD_ORI">Hiển thị mật mã</entry>
-    <entry lang="vi" key="IDC_TRAVEL_OPEN_EXPLORER">Mở cửa sổ &amp;Explorer cho tập đĩa được nạp lên</entry>
+    <entry lang="vi" key="IDC_TRAVEL_OPEN_EXPLORER">Mở cửa sổ &amp;Explorer cho ổ đĩa được gắn</entry>
     <entry lang="vi" key="IDC_TRAV_CACHE_PASSWORDS">&amp;Tạm trữ mật mã trong bộ nhớ của trình điều khiển</entry>
-    <entry lang="en" key="IDC_TRUECRYPT_MODE">TrueCrypt Mode</entry>
-    <entry lang="vi" key="IDC_UNMOUNTALL">Th&amp;áo Tất cả xuống</entry>
-    <entry lang="vi" key="IDC_VOLUME_PROPERTIES">Đặc tính của Tập đĩa...</entry>
-    <entry lang="vi" key="IDC_VOLUME_TOOLS">Công cụ của Tập đĩa...</entry>
-    <entry lang="vi" key="IDC_WIPE_CACHE">&amp;Tẩy Bộ tạm trữ</entry>
+    <entry lang="vi" key="IDC_TRUECRYPT_MODE">Chế độ TrueCrypt</entry>
+    <entry lang="vi" key="IDC_UNMOUNTALL">Thá&amp;o Tất cả</entry>
+    <entry lang="vi" key="IDC_VOLUME_PROPERTIES">Thuộc tính của ổ đĩa...</entry>
+    <entry lang="vi" key="IDC_VOLUME_TOOLS">Công cụ ổ đĩa...</entry>
+    <entry lang="vi" key="IDC_WIPE_CACHE">&amp;Xóa bộ tạm trữ</entry>
     <entry lang="en" key="IDD_DEFAULT_MOUNT_PARAMETERS">VeraCrypt - Mount Parameters</entry>
-    <entry lang="en" key="IDD_FAVORITE_VOLUMES">VeraCrypt - Favorite Volumes</entry>
-    <entry lang="vi" key="IDD_HOTKEYS_DLG">VeraCrypt - Các khóa kích hoạt cho Nguyên cả Hệ thống</entry>
+    <entry lang="vi" key="IDD_FAVORITE_VOLUMES">VeraCrypt - Ổ đĩa Ưa thích</entry>
+    <entry lang="vi" key="IDD_HOTKEYS_DLG">VeraCrypt - Phím tắt cho toàn bộ hệ thống</entry>
     <entry lang="vi" key="IDD_MOUNT_DLG">VeraCrypt</entry>
     <entry lang="vi" key="IDD_PASSWORDCHANGE_DLG">Thay đổi Mật mã hoặc Tập tin khóa</entry>
-    <entry lang="vi" key="IDD_PASSWORD_DLG">Nhập vào Mật mã của Tập đĩa VeraCrypt</entry>
-    <entry lang="en" key="IDD_PERFORMANCE_SETTINGS">VeraCrypt - Performance and Driver Options</entry>
-    <entry lang="vi" key="IDD_PREFERENCES_DLG">VeraCrypt - Tùy thích</entry>
+    <entry lang="vi" key="IDD_PASSWORD_DLG">Nhập Mật mã của ổ đĩa VeraCrypt</entry>
+    <entry lang="vi" key="IDD_PERFORMANCE_SETTINGS">VeraCrypt - Tùy chọn Hiệu năng và Trình điều khiển</entry>
+    <entry lang="vi" key="IDD_PREFERENCES_DLG">VeraCrypt - Tùy chọn</entry>
     <entry lang="vi" key="IDD_SYSENC_SETTINGS">VeraCrypt - Thiết lập Mã hóa Hệ thống</entry>
-    <entry lang="vi" key="IDD_TOKEN_PREFERENCES">VeraCrypt - Các tùy thích của Hiệu bài Bảo mật</entry>
-    <entry lang="vi" key="IDD_TRAVELER_DLG">Thiết kế Đĩa Di chuyển của VeraCrypt</entry>
-    <entry lang="vi" key="IDD_VOLUME_PROPERTIES">Đặc tính của Tập đĩa VeraCrypt</entry>
-    <entry lang="vi" key="IDM_ABOUT">Về...</entry>
+    <entry lang="vi" key="IDD_TOKEN_PREFERENCES">VeraCrypt - Tùy chọn cho Thẻ bảo mật</entry>
+    <entry lang="vi" key="IDD_TRAVELER_DLG">Thiết lập Đĩa Veracrypt di chuyển được</entry>
+    <entry lang="vi" key="IDD_VOLUME_PROPERTIES">Thuộc tính của ổ đĩa VeraCrypt</entry>
+    <entry lang="vi" key="IDM_ABOUT">Thông tin</entry>
     <entry lang="vi" key="IDM_ADD_REMOVE_VOL_KEYFILES">Thêm/Bỏ Tập tin khóa vào/từ Tập đĩa...</entry>
-    <entry lang="en" key="IDM_ADD_VOLUME_TO_FAVORITES">Add Mounted Volume to Favorites...</entry>
-    <entry lang="en" key="IDM_ADD_VOLUME_TO_SYSTEM_FAVORITES">Add Mounted Volume to System Favorites...</entry>
-    <entry lang="en" key="IDM_ANALYZE_SYSTEM_CRASH">Analyze a System Crash...</entry>
+    <entry lang="vi" key="IDM_ADD_VOLUME_TO_FAVORITES">Thêm Ổ đĩa đã gắn vào mục Ưa thích...</entry>
+    <entry lang="vi" key="IDM_ADD_VOLUME_TO_SYSTEM_FAVORITES">Thêm Ổ đĩa đã gắn vào mục Ưa thích Hệ thống...</entry>
+    <entry lang="vi" key="IDM_ANALYZE_SYSTEM_CRASH">Phân tích Lỗi gây sập Hệ thống...</entry>
     <entry lang="vi" key="IDM_BACKUP_VOL_HEADER">Sao lưu Phần đầu của Tập đĩa...</entry>
-    <entry lang="vi" key="IDM_BENCHMARK">Tiêu chuẩn...</entry>
+    <entry lang="vi" key="IDM_BENCHMARK">Kiểm chuẩn...</entry>
     <entry lang="vi" key="IDM_CHANGE_HEADER_KEY_DERIV_ALGO">Đặt Khóa Đầu của Thuật toán Chuyển hóa...</entry>
-    <entry lang="vi" key="IDM_CHANGE_PASSWORD">Đổi mật mã của Tập đĩa...</entry>
+    <entry lang="vi" key="IDM_CHANGE_PASSWORD">Đổi mật mã của ổ đĩa...</entry>
     <entry lang="vi" key="IDM_CHANGE_SYS_HEADER_KEY_DERIV_ALGO">Đặt Khóa Đầu của Thuật toán Chuyển hóa...</entry>
     <entry lang="vi" key="IDM_CHANGE_SYS_PASSWORD">Đổi mật mã...</entry>
-    <entry lang="vi" key="IDM_CLEAR_HISTORY">Xóa lược sử của Tập đĩa</entry>
-    <entry lang="vi" key="IDM_CLOSE_ALL_TOKEN_SESSIONS">Đóng Tất cả các Phiên chạy của Hiệu bài Bảo mật</entry>
+    <entry lang="vi" key="IDM_CLEAR_HISTORY">Xóa lịch sử của ổ đĩa</entry>
+    <entry lang="vi" key="IDM_CLOSE_ALL_TOKEN_SESSIONS">Đóng Tất cả các Phiên chạy của Thẻ bảo mật</entry>
     <entry lang="vi" key="IDM_CONTACT">Liên hệ...</entry>
-    <entry lang="vi" key="IDM_CREATE_HIDDEN_OS">Cấu tạo Hệ điều hành Ẩn...</entry>
-    <entry lang="vi" key="IDM_CREATE_RESCUE_DISK">Cấu tạo Đĩa Cứu hộ...</entry>
-    <entry lang="vi" key="IDM_CREATE_VOLUME">Cấu tạo Tập đĩa mới...</entry>
-    <entry lang="en" key="IDM_DECRYPT_NONSYS_VOL">Permanently Decrypt...</entry>
-    <entry lang="vi" key="IDM_DEFAULT_KEYFILES">Tập tin khóa Mặc định...</entry>
-    <entry lang="en" key="IDM_DEFAULT_MOUNT_PARAMETERS">Default Mount Parameters...</entry>
-    <entry lang="en" key="IDM_DONATE">Donate now...</entry>
+    <entry lang="vi" key="IDM_CREATE_HIDDEN_OS">Tạo Hệ điều hành Ẩn...</entry>
+    <entry lang="vi" key="IDM_CREATE_RESCUE_DISK">Tạo Đĩa Cứu hộ...</entry>
+    <entry lang="vi" key="IDM_CREATE_VOLUME">Tạo Ổ đĩa mới...</entry>
+    <entry lang="en" key="IDM_DECRYPT_NONSYS_VOL">Giải mã vĩnh viễn...</entry>
+    <entry lang="vi" key="IDM_DEFAULT_KEYFILES">Tệp khóa Mặc định...</entry>
+    <entry lang="en" key="IDM_DEFAULT_MOUNT_PARAMETERS">Tham số Gắn Mặc định...</entry>
+    <entry lang="en" key="IDM_DONATE">Ủng hộ ngay...</entry>
     <entry lang="vi" key="IDM_ENCRYPT_SYSTEM_DEVICE">Mã hóa Phân vùng Hệ thống/Ổ đĩa...</entry>
-    <entry lang="vi" key="IDM_FAQ">Câu hỏi thông dụng</entry>
+    <entry lang="vi" key="IDM_FAQ">Câu hỏi thường gặp</entry>
     <entry lang="vi" key="IDM_HELP">Hướng dẫn</entry>
     <entry lang="vi" key="IDM_HOMEPAGE">Trang chủ</entry>
-    <entry lang="vi" key="IDM_HOTKEY_SETTINGS">Phím nóng...</entry>
-    <entry lang="vi" key="IDM_KEYFILE_GENERATOR">Cấu tạo Tập tin khóa</entry>
+    <entry lang="vi" key="IDM_HOTKEY_SETTINGS">Phím tắt...</entry>
+    <entry lang="vi" key="IDM_KEYFILE_GENERATOR">Tạo Tệp khóa</entry>
     <entry lang="vi" key="IDM_LANGUAGE">Ngôn ngữ...</entry>
-    <entry lang="vi" key="IDM_LICENSE">Các Lưu ý Pháp lý</entry>
-    <entry lang="vi" key="IDM_MANAGE_TOKEN_KEYFILES">Quản lý Các tập tin khóa của Hiệu bài Bảo mật...</entry>
-    <entry lang="vi" key="IDM_MOUNTALL">Tự-Nạp lên Tất cả các Tập đĩa có Thiết bị làm chủ</entry>
-    <entry lang="vi" key="IDM_MOUNT_FAVORITE_VOLUMES">Nạp các Tập đĩa được Chuộng lên</entry>
-    <entry lang="vi" key="IDM_MOUNT_SYSENC_PART_WITHOUT_PBA">Nạp lên mà Không cần &amp;Chứng thực Tiền Khởi động...</entry>
-    <entry lang="vi" key="IDM_MOUNT_VOLUME">Nạp Tập đĩa lên</entry>
-    <entry lang="vi" key="IDM_MOUNT_VOLUME_OPTIONS">Nạp Tập đĩa với các Tùy chọn lên</entry>
+    <entry lang="vi" key="IDM_LICENSE">Lưu ý về Pháp lý</entry>
+    <entry lang="vi" key="IDM_MANAGE_TOKEN_KEYFILES">Quản lý Các Tệp khóa của Thẻ bảo mật...</entry>
+    <entry lang="vi" key="IDM_MOUNTALL">Tự động Gắn Tất cả các ổ đĩa có Thiết bị làm chủ</entry>
+    <entry lang="vi" key="IDM_MOUNT_FAVORITE_VOLUMES">Gắn các Ổ đĩa ưa thích lên</entry>
+    <entry lang="vi" key="IDM_MOUNT_SYSENC_PART_WITHOUT_PBA">Gắn mà Không dùng &amp;Chứng thực Tiền Khởi động...</entry>
+    <entry lang="vi" key="IDM_MOUNT_VOLUME">Gắn Ổ đĩa lên</entry>
+    <entry lang="vi" key="IDM_MOUNT_VOLUME_OPTIONS">Gắn Ổ đĩa kèm Tùy chọn</entry>
     <entry lang="vi" key="IDM_NEWS">Tin tức</entry>
     <entry lang="vi" key="IDM_ONLINE_HELP">Trợ giúp trực tuyến</entry>
-    <entry lang="vi" key="IDM_ONLINE_TUTORIAL">Bài học cho người bắt đầu</entry>
-    <entry lang="en" key="IDM_ORGANIZE_FAVORITES">Organize Favorite Volumes...</entry>
-    <entry lang="en" key="IDM_ORGANIZE_SYSTEM_FAVORITES">Organize System Favorite Volumes...</entry>
+    <entry lang="vi" key="IDM_ONLINE_TUTORIAL">Hướng dẫn cho người mới bắt đầu</entry>
+    <entry lang="vi" key="IDM_ORGANIZE_FAVORITES">Quản lý Ổ đĩa Ưa thích...</entry>
+    <entry lang="vi" key="IDM_ORGANIZE_SYSTEM_FAVORITES">Quản lý Ổ đĩa Ưa thích Hệ thống...</entry>
     <entry lang="en" key="IDM_PERFORMANCE_SETTINGS">Performance/Driver Configuration</entry>
     <entry lang="vi" key="IDM_PERMANENTLY_DECRYPT_SYS">Giải mã vĩnh viễn Phân vùng Hệ thống/Ổ đĩa</entry>
-    <entry lang="vi" key="IDM_PREFERENCES">Sở thích...</entry>
-    <entry lang="vi" key="IDM_REFRESH_DRIVE_LETTERS">Cập nhật các Chữ hiệu Ổ đĩa</entry>
-    <entry lang="vi" key="IDM_REMOVE_ALL_KEYFILES_FROM_VOL">Bỏ Tất cả Tập tin khóa ra khỏi Tập đĩa...</entry>
-    <entry lang="vi" key="IDM_RESTORE_VOL_HEADER">Khôi phục Phần đầu của Tập đĩa...</entry>
+    <entry lang="vi" key="IDM_PREFERENCES">Tùy chọn...</entry>
+    <entry lang="vi" key="IDM_REFRESH_DRIVE_LETTERS">Cập nhật các Ký hiệu Ổ đĩa</entry>
+    <entry lang="vi" key="IDM_REMOVE_ALL_KEYFILES_FROM_VOL">Bỏ Tất cả Tệp khóa ra khỏi Ổ đĩa...</entry>
+    <entry lang="vi" key="IDM_RESTORE_VOL_HEADER">Khôi phục Phần đầu của Ổ đĩa...</entry>
     <entry lang="vi" key="IDM_RESUME_INTERRUPTED_PROC">Tiếp tục lại các quá trình bị gián đoạn</entry>
     <entry lang="vi" key="IDM_SELECT_DEVICE">Chọn thiết bị...</entry>
     <entry lang="vi" key="IDM_SELECT_FILE">Chọn tập tin...</entry>
     <entry lang="vi" key="IDM_SYSENC_RESUME">Tiếp tục lại các quá trình bị gián đoạn</entry>
     <entry lang="vi" key="IDM_SYSENC_SETTINGS">Mã hóa hệ thống...</entry>
-    <entry lang="vi" key="IDM_SYSTEM_ENCRYPTION_STATUS">Đặc tính...</entry>
-    <entry lang="vi" key="IDM_SYS_ENC_SETTINGS">Thiết lập...</entry>
-    <entry lang="vi" key="IDM_SYS_FAVORITES_SETTINGS">Các Tập đĩa Hệ thống được Chuộng...</entry>
+    <entry lang="vi" key="IDM_SYSTEM_ENCRYPTION_STATUS">Thuộc tính...</entry>
+    <entry lang="vi" key="IDM_SYS_ENC_SETTINGS">Cài đặt...</entry>
+    <entry lang="vi" key="IDM_SYS_FAVORITES_SETTINGS">Các Ổ đĩa Hệ thống Ưa thích...</entry>
     <entry lang="vi" key="IDM_TC_DOWNLOADS">Tải xuống</entry>
     <entry lang="vi" key="IDM_TEST_VECTORS">Vectơ Thử nghiệm...</entry>
-    <entry lang="vi" key="IDM_TOKEN_PREFERENCES">Các Hiệu bài Bảo mật...</entry>
-    <entry lang="vi" key="IDM_TRAVELER">Thiết kế Đĩa Di chuyển...</entry>
-    <entry lang="vi" key="IDM_UNMOUNTALL">Tháo Tất cả các Tập đĩa xuống</entry>
-    <entry lang="vi" key="IDM_UNMOUNT_VOLUME">Tháo Tập đĩa xuống</entry>
+    <entry lang="vi" key="IDM_TOKEN_PREFERENCES">Thẻ bảo mật...</entry>
+    <entry lang="vi" key="IDM_TRAVELER">Thiết lập Đĩa Di chuyển được...</entry>
+    <entry lang="vi" key="IDM_UNMOUNTALL">Tháo Tất cả các Ổ đĩa xuống</entry>
+    <entry lang="vi" key="IDM_UNMOUNT_VOLUME">Tháo Ổ đĩa xuống</entry>
     <entry lang="vi" key="IDM_VERIFY_RESCUE_DISK">Kiểm tra Đĩa Cứu hộ</entry>
-    <entry lang="en" key="IDM_VERIFY_RESCUE_DISK_ISO">Verify Rescue Disk Image</entry>
+    <entry lang="vi" key="IDM_VERIFY_RESCUE_DISK_ISO">Kiểm tra Ảnh tạo Đĩa Cứu hộ...</entry>
     <entry lang="vi" key="IDM_VERSION_HISTORY">Lịch sử phiên bản</entry>
-    <entry lang="en" key="IDM_VOLUME_EXPANDER">Volume Expander</entry>
-    <entry lang="vi" key="IDM_VOLUME_PROPERTIES">Đặc tính của Tập đĩa</entry>
-    <entry lang="vi" key="IDM_VOLUME_WIZARD">Trợ giúp Cấu tạo Tập đĩa</entry>
+    <entry lang="en" key="IDM_VOLUME_EXPANDER">Mở rộng Ổ đĩa</entry>
+    <entry lang="vi" key="IDM_VOLUME_PROPERTIES">Thuộc tính của Ổ đĩa</entry>
+    <entry lang="vi" key="IDM_VOLUME_WIZARD">Trình tạo Ổ đĩa</entry>
     <entry lang="vi" key="IDM_WEBSITE">Trang Web của VeraCrypt</entry>
-    <entry lang="vi" key="IDM_WIPE_CACHE">Tẩy Mật mã được Tạm trữ</entry>
+    <entry lang="vi" key="IDM_WIPE_CACHE">Xóa Mật mã tạm trữ</entry>
     <entry lang="vi" key="IDOK">Đồng ý</entry>
-    <entry lang="en" key="IDT_ACCELERATION_OPTIONS">Hardware Acceleration</entry>
+    <entry lang="vi" key="IDT_ACCELERATION_OPTIONS">Tăng tốc Phần cứng</entry>
     <entry lang="vi" key="IDT_ASSIGN_HOTKEY">Phím tắt</entry>
-    <entry lang="vi" key="IDT_AUTORUN">Cấu hình Tự chạy (autorun.inf)</entry>
-    <entry lang="vi" key="IDT_AUTO_UNMOUNT">Tự-Tháo xuống</entry>
-    <entry lang="vi" key="IDT_AUTO_UNMOUNT_ON">Tháo tất cả xuống khi:</entry>
-    <entry lang="vi" key="IDT_BOOT_LOADER_SCREEN_OPTIONS">Các Tùy chọn của Màn hình Bộ tải Khởi nạp</entry>
+    <entry lang="vi" key="IDT_AUTORUN">Cấu hình Tự động chạy (autorun.inf)</entry>
+    <entry lang="vi" key="IDT_AUTO_UNMOUNT">Tự động Tháo</entry>
+    <entry lang="vi" key="IDT_AUTO_UNMOUNT_ON">Tháo tất cả khi:</entry>
+    <entry lang="vi" key="IDT_BOOT_LOADER_SCREEN_OPTIONS">Cài đặt cho Màn hình Bootloader</entry>
     <entry lang="vi" key="IDT_CONFIRM_PASSWORD">Xác nhận mật mã:</entry>
     <entry lang="vi" key="IDT_CURRENT">Hiện tại</entry>
     <entry lang="vi" key="IDT_CUSTOM_BOOT_LOADER_MESSAGE">Hiển thị thông điệp riêng này trong màn hình chứng thực tiền khởi động (tối đa 24 ký tự):</entry>
-    <entry lang="vi" key="IDT_DEFAULT_MOUNT_OPTIONS">Tùy chọn của Nạp mặc định</entry>
-    <entry lang="vi" key="IDT_UNMOUNT_ACTION">Tùy chọn phím nóng</entry>
-    <entry lang="en" key="IDT_DRIVER_OPTIONS">Driver Configuration</entry>
+    <entry lang="vi" key="IDT_DEFAULT_MOUNT_OPTIONS">Tùy chọn Gắn Mặc định</entry>
+    <entry lang="vi" key="IDT_UNMOUNT_ACTION">Tùy chọn phím tắt</entry>
+    <entry lang="vi" key="IDT_DRIVER_OPTIONS">Tùy chọn Trình điều khiển</entry>
     <entry lang="en" key="IDC_ENABLE_EXTENDED_IOCTL_SUPPORT">Enable extended disk control codes support</entry>
     <entry lang="en" key="IDT_FAVORITE_LABEL">Label of selected favorite volume:</entry>
-    <entry lang="vi" key="IDT_FILE_SETTINGS">Thiếp lập tập tin</entry>
-    <entry lang="vi" key="IDT_HOTKEY_KEY">Khóa để giao cho:</entry>
-    <entry lang="en" key="IDT_HW_AES_SUPPORTED_BY_CPU">Processor (CPU) in this computer supports hardware acceleration for AES:</entry>
+    <entry lang="vi" key="IDT_FILE_SETTINGS">Cài đặt tập tin</entry>
+    <entry lang="vi" key="IDT_HOTKEY_KEY">Gán vào phím:</entry>
+    <entry lang="vi" key="IDT_HW_AES_SUPPORTED_BY_CPU">Bộ xử lý (CPU) trong máy tính này hỗ trợ tăng tốc phần cứng cho AES:</entry>
     <entry lang="vi" key="IDT_LOGON">Hành động cần làm ngay khi đăng nhập vào Windows</entry>
     <entry lang="vi" key="IDT_MINUTES">phút</entry>
-    <entry lang="vi" key="IDT_MOUNT_LETTER">Nạp tập đĩa lên thành chữ hiệu ổ đĩa:</entry>
-    <entry lang="vi" key="IDT_MOUNT_SETTINGS">Thiết lập Tập đĩa</entry>
+    <entry lang="vi" key="IDT_MOUNT_LETTER">Gắn ổ đĩa vào ký hiệu ổ đĩa:</entry>
+    <entry lang="vi" key="IDT_MOUNT_SETTINGS">Thiết lập ổ đĩa</entry>
     <entry lang="vi" key="IDT_NEW">Mới</entry>
     <entry lang="vi" key="IDT_NEW_PASSWORD">Mật mã:</entry>
     <entry lang="en" key="IDT_PARALLELIZATION_OPTIONS">Thread-Based Parallelization</entry>

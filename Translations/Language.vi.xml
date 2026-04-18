@@ -10,22 +10,22 @@
     <entry lang="vi" key="IDC_ALL_USERS">Cài đặt &amp;cho tất cả người dùng</entry>
     <entry lang="vi" key="IDC_BROWSE">X&amp;em...</entry>
     <entry lang="vi" key="IDC_DESKTOP_ICON">Thêm biểu tượng VeraCrypt vào &amp;màn hình</entry>
-    <entry lang="en" key="IDC_DONATE">Donate now...</entry>
+    <entry lang="vi" key="IDC_DONATE">Ủng hộ ngay...</entry>
     <entry lang="vi" key="IDC_FILE_TYPE">Liên hệ tập tin có &amp;đuôi .hc với VeraCrypt</entry>
     <entry lang="vi" key="IDC_OPEN_CONTAINING_FOLDER">&amp;Mở vị trí đích khi chấm dứt</entry>
     <entry lang="vi" key="IDC_PROG_GROUP">Thêm VeraCrypt vào trình đơn &amp;Start</entry>
-    <entry lang="vi" key="IDC_SYSTEM_RESTORE">Cấu tạo điểm &amp;Phục hồi Hệ thống</entry>
+    <entry lang="vi" key="IDC_SYSTEM_RESTORE">Tạo điểm &amp;Phục hồi Hệ thống</entry>
     <entry lang="vi" key="IDC_UNINSTALL">&amp;Hủy cài đặt</entry>
-    <entry lang="vi" key="IDC_WIZARD_MODE_EXTRACT_ONLY">&amp;Trích</entry>
+    <entry lang="vi" key="IDC_WIZARD_MODE_EXTRACT_ONLY">&amp;Trích xuất</entry>
     <entry lang="vi" key="IDC_WIZARD_MODE_INSTALL">&amp;Cài đặt</entry>
     <entry lang="vi" key="IDD_INSTL_DLG">Trợ lý Thiết lập VeraCrypt</entry>
     <entry lang="vi" key="IDD_UNINSTALL">Hủy cài đặt VeraCrypt</entry>
     <entry lang="vi" key="IDHELP">&amp;Trợ giúp</entry>
     <entry lang="vi" key="IDT_EXTRACT_DESTINATION">Xin chọn hoặc gõ vị trí nơi bạn muốn đặt các tập tin được trích:</entry>
-    <entry lang="vi" key="IDT_INSTALL_DESTINATION">Xin chọn hoặc gõ vị trí nơi bạn muốn cài đặt các tập tin chương trình của VeraCrypt. Nếu thư mục được điền vào không có thì nó sẽ được tự động cấu tạo.</entry>
+    <entry lang="vi" key="IDT_INSTALL_DESTINATION">Xin chọn hoặc gõ vị trí nơi bạn muốn cài đặt các tập tin chương trình của VeraCrypt. Nếu thư mục được điền vào không có thì nó sẽ được tự động tạo.</entry>
     <entry lang="vi" key="IDT_UNINSTALL_DIR">Nhấn Hủy cài đặt để gỡ bỏ VeraCrypt ra khỏi hệ thống này.</entry>
     <entry lang="vi" key="IDC_ABORT_BUTTON">Thoát ra</entry>
-    <entry lang="en" key="IDC_BENCHMARK">&amp;Benchmark</entry>
+    <entry lang="vi" key="IDC_BENCHMARK">&amp;Kiểm chuẩn</entry>
     <entry lang="vi" key="IDC_CIPHER_TEST">&amp;Thử</entry>
     <entry lang="vi" key="IDC_DEVICE_TRANSFORM_MODE_FORMAT">Cấu tạo tập đĩa được mã hóa và định dạng nó</entry>
     <entry lang="vi" key="IDC_DEVICE_TRANSFORM_MODE_INPLACE">Mã hóa phân vùng tại chỗ</entry>
@@ -41,7 +41,7 @@
     <entry lang="vi" key="IDC_HIDVOL_WIZ_MODE_DIRECT">Phương thức trực tiếp</entry>
     <entry lang="vi" key="IDC_HIDVOL_WIZ_MODE_FULL">Phương thức thông thường</entry>
     <entry lang="vi" key="IDC_KB">&amp;KB</entry>
-    <entry lang="vi" key="IDC_KEYFILES_ENABLE">X&amp;ử dụng tập tin khóa</entry>
+    <entry lang="vi" key="IDC_KEYFILES_ENABLE">S&amp;ử dụng tập tin khóa</entry>
     <entry lang="en" key="IDC_KEYFILES_TRY_EMPTY_PASSWORD">Try first to mount with an empty password</entry>
     <entry lang="en" key="IDC_KEYFILES_RANDOM_SIZE">Random size ( 64 &lt;-&gt; 1048576 )</entry>
     <entry lang="vi" key="IDC_KEY_FILES">&amp;Tập tin khóa..</entry>
@@ -57,12 +57,12 @@
     <entry lang="vi" key="IDC_NO_HISTORY">Đừng bao giờ &amp;lưu lược sử</entry>
     <entry lang="vi" key="IDC_OPEN_OUTER_VOLUME">Mở tập đĩa bên ngoài</entry>
     <entry lang="vi" key="IDC_PAUSE">&amp;Tạm dừng</entry>
-    <entry lang="en" key="IDC_PIM_ENABLE">Use P&amp;IM</entry>
-    <entry lang="en" key="IDC_NEW_PIM_ENABLE">Use PIM</entry>
+    <entry lang="vi" key="IDC_PIM_ENABLE">Dùng mã P&amp;IM</entry>
+    <entry lang="vi" key="IDC_NEW_PIM_ENABLE">Dùng mã PIM</entry>
     <entry lang="vi" key="IDC_QUICKFORMAT">Định dạng nhanh</entry>
     <entry lang="vi" key="IDC_SHOW_PASSWORD">&amp;Hiển thị mật mã</entry>
     <entry lang="vi" key="IDC_SHOW_PASSWORD_SINGLE">&amp;Hiển thị mật mã</entry>
-    <entry lang="en" key="IDC_SHOW_PIM">&amp;Display PIM</entry>
+    <entry lang="vi" key="IDC_SHOW_PIM">&amp;Hiển thị mã PIM</entry>
     <entry lang="vi" key="IDC_SINGLE_BOOT">Khởi động đơn hệ</entry>
     <entry lang="vi" key="IDC_STD_VOL">Tập đĩa VeraCrypt chuẩn</entry>
     <entry lang="vi" key="IDC_SYSENC_HIDDEN">Ẩ&amp;n</entry>
@@ -113,15 +113,15 @@
     <entry lang="vi" key="IDC_CACHE">Tạm trữ các mật mã và tập &amp;tin khóa trong bộ nhớ</entry>
     <entry lang="vi" key="IDC_CLOSE_BKG_TASK_WHEN_NOVOL">Thoát ra khi không có tập đĩa nào được nạp lên</entry>
     <entry lang="vi" key="IDC_CLOSE_TOKEN_SESSION_AFTER_MOUNT">&amp;Đóng phiên chạy của hiệu bài (đăng xuất) sau khi một tập đĩa được nạp lên thành công</entry>
-    <entry lang="en" key="IDC_COPY_EXPANDER">Include VeraCrypt Volume Expander</entry>
-    <entry lang="vi" key="IDC_COPY_WIZARD">Thêm Trợ lý Cấu tạo Tập đĩa VeraCrypt vào</entry>
-    <entry lang="vi" key="IDC_CREATE">Cấu tạo</entry>
-    <entry lang="vi" key="IDC_CREATE_VOLUME">Cấu tạo Tập đĩa</entry>
+    <entry lang="en" key="IDC_COPY_EXPANDER">Thêm Trình Mở rộng Ổ đĩa VeraCrypt vào</entry>
+    <entry lang="vi" key="IDC_COPY_WIZARD">Thêm Trình tạo Ổ đĩa VeraCrypt vào</entry>
+    <entry lang="vi" key="IDC_CREATE">Tạo</entry>
+    <entry lang="vi" key="IDC_CREATE_VOLUME">Tạo Ổ đĩa</entry>
     <entry lang="vi" key="IDC_DISABLE_BOOT_LOADER_OUTPUT">Đừng cho thấy bất cứ văn bản nào trong màn ảnh chứng thực tiền khởi động (ngoại trừ thông điệp riêng bên dưới)</entry>
     <entry lang="en" key="IDC_DISABLE_EVIL_MAID_ATTACK_DETECTION">Disable "Evil Maid" attack detection</entry>
     <entry lang="en" key="IDC_ENABLE_HARDWARE_ENCRYPTION">Accelerate AES encryption/decryption by using the AES instructions of the processor (if available)</entry>
-    <entry lang="vi" key="IDC_ENABLE_KEYFILES">Xử dụng tập tin khóa</entry>
-    <entry lang="vi" key="IDC_ENABLE_NEW_KEYFILES">Xử dụng tập tin khóa</entry>
+    <entry lang="vi" key="IDC_ENABLE_KEYFILES">Sử dụng tập tin khóa</entry>
+    <entry lang="vi" key="IDC_ENABLE_NEW_KEYFILES">Sử dụng tập tin khóa</entry>
     <entry lang="vi" key="IDC_EXIT">Thoát ra</entry>
     <entry lang="en" key="IDC_FAVORITES_HELP_LINK">Help on favorite volumes</entry>
     <entry lang="en" key="IDC_FAVORITE_DISABLE_HOTKEY">Do not mount selected volume when 'Mount Favorite Volumes' &amp;hot key is pressed</entry>
@@ -138,7 +138,7 @@
     <entry lang="en" key="IDC_HK_UNMOUNT_BALLOON_TOOLTIP">Display balloon tooltip after successful hot-key unmount</entry>
     <entry lang="en" key="IDC_HK_UNMOUNT_PLAY_SOUND">Play system notification sound after successful hot-key unmount</entry>
     <entry lang="vi" key="IDC_HK_MOD_ALT">Alt</entry>
-    <entry lang="en" key="IDC_HK_MOD_CTRL">Ctrl</entry>
+    <entry lang="vi" key="IDC_HK_MOD_CTRL">Ctrl</entry>
     <entry lang="vi" key="IDC_HK_MOD_SHIFT">Shift</entry>
     <entry lang="vi" key="IDC_HK_MOD_WIN">Win</entry>
     <entry lang="vi" key="IDC_HOTKEY_ASSIGN">Gán</entry>

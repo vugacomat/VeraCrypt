@@ -29,7 +29,9 @@
 namespace VeraCrypt
 {
 	VolumeCreator::VolumeCreator ()
-		: SizeDone (0)
+		: SizeDone (0),
+		Stage (ProgressStage::NotStarted),
+		mProgressInfo {false, 0, 0, ProgressStage::NotStarted}
 	{
 	}
 
@@ -58,6 +60,7 @@ namespace VeraCrypt
 			if (filesystemSize < 1)
 				throw ParameterIncorrect (SRC_POS);
 
+			Stage.Set (ProgressStage::WritingData);
 			DataStart = Layout->GetDataOffset (HostSize);
 			WriteOffset = DataStart;
 			endOffset = DataStart + Layout->GetDataSize (HostSize);
@@ -137,13 +140,17 @@ namespace VeraCrypt
 			{
 				SizeDone.Set (Options->Size);
 
+				Stage.Set (ProgressStage::WritingBackupHeader);
+
 				// Backup header
 				SecureBuffer backupHeader (Layout->GetHeaderSize());
 
 				SecureBuffer backupHeaderSalt (VolumeHeader::GetSaltSize());
 				RandomNumberGenerator::GetData (backupHeaderSalt);
 
-				Options->VolumeHeaderKdf->DeriveKey (HeaderKey, *PasswordKey, Options->Pim, backupHeaderSalt);
+				int derivationResult = Options->VolumeHeaderKdf->DeriveKey (HeaderKey, *PasswordKey, Options->Pim, backupHeaderSalt);
+				if (derivationResult != 0)
+					throw ExternalException (SRC_POS, Options->VolumeHeaderKdf->GetDerivationFailureMessage (derivationResult));
 
 				Layout->GetHeader()->EncryptNew (backupHeader, backupHeaderSalt, HeaderKey, Options->VolumeHeaderKdf);
 
@@ -189,19 +196,26 @@ namespace VeraCrypt
 					VolumeFile->Write (backupHeader);
 				}
 
+				Stage.Set (ProgressStage::FlushingData);
 				VolumeFile->Flush();
+				Stage.Set (ProgressStage::Finished);
 			}
+			else
+				Stage.Set (ProgressStage::Aborted);
 		}
 		catch (Exception &e)
 		{
+			Stage.Set (ProgressStage::Error);
 			ThreadException.reset (e.CloneNew());
 		}
 		catch (exception &e)
 		{
+			Stage.Set (ProgressStage::Error);
 			ThreadException.reset (new ExternalException (SRC_POS, StringConverter::ToExceptionString (e)));
 		}
 		catch (...)
 		{
+			Stage.Set (ProgressStage::Error);
 			ThreadException.reset (new UnknownException (SRC_POS));
 		}
 
@@ -212,6 +226,9 @@ namespace VeraCrypt
 	void VolumeCreator::CreateVolume (shared_ptr <VolumeCreationOptions> options)
 	{
 		EncryptionTest::TestAll();
+		SizeDone.Set (0);
+		Stage.Set (ProgressStage::NotStarted);
+		ThreadException.reset();
 
 		{
 #ifdef TC_UNIX
@@ -316,7 +333,9 @@ namespace VeraCrypt
 			// Header key
 			HeaderKey.Allocate (VolumeHeader::GetLargestSerializedKeySize());
 			PasswordKey = Keyfile::ApplyListToPassword (options->Keyfiles, options->Password, options->EMVSupportEnabled);
-			options->VolumeHeaderKdf->DeriveKey (HeaderKey, *PasswordKey, options->Pim, salt);
+			int derivationResult = options->VolumeHeaderKdf->DeriveKey (HeaderKey, *PasswordKey, options->Pim, salt);
+			if (derivationResult != 0)
+				throw ExternalException (SRC_POS, options->VolumeHeaderKdf->GetDerivationFailureMessage (derivationResult));
 			headerOptions.HeaderKey = HeaderKey;
 
 			header->Create (headerBuffer, headerOptions);
@@ -375,6 +394,9 @@ namespace VeraCrypt
 			Options = options;
 			AbortRequested = false;
 
+			mProgressInfo.TotalSize = options->Size;
+			mProgressInfo.SizeDone = 0;
+			mProgressInfo.Stage = ProgressStage::NotStarted;
 			mProgressInfo.CreationInProgress = true;
 
 			struct ThreadFunctor : public Functor
@@ -408,6 +430,7 @@ namespace VeraCrypt
 	VolumeCreator::ProgressInfo VolumeCreator::GetProgressInfo ()
 	{
 		mProgressInfo.SizeDone = SizeDone.Get();
+		mProgressInfo.Stage = static_cast <ProgressStage::Enum> (Stage.Get());
 		return mProgressInfo;
 	}
 }

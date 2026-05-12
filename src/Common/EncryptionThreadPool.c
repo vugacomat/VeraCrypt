@@ -98,6 +98,7 @@ typedef struct EncryptionThreadPoolWorkItemStruct
 		{
 			TC_EVENT *CompletionEvent;
 			LONG *CompletionFlag;
+			LONG *DerivationResult;
 			unsigned char *DerivedKey;
 			int IterationCount;
 			int Memorycost;
@@ -244,6 +245,9 @@ static TC_THREAD_PROC EncryptionThreadProc (void *threadArg)
 			break;
 
 		case DeriveKeyWork:
+			{
+			int derivationResult = 0;
+
 			switch (workItem->KeyDerivation.Pkcs5Prf)
 			{
 			case BLAKE2S:
@@ -272,13 +276,16 @@ static TC_THREAD_PROC EncryptionThreadProc (void *threadArg)
 				break;
 
 			case ARGON2:
-				derive_key_argon2(workItem->KeyDerivation.Password, workItem->KeyDerivation.PasswordLength, workItem->KeyDerivation.Salt, PKCS5_SALT_SIZE,
+				derivationResult = derive_key_argon2(workItem->KeyDerivation.Password, workItem->KeyDerivation.PasswordLength, workItem->KeyDerivation.Salt, PKCS5_SALT_SIZE,
 					workItem->KeyDerivation.IterationCount, workItem->KeyDerivation.Memorycost, workItem->KeyDerivation.DerivedKey, GetMaxPkcs5OutSize(), workItem->KeyDerivation.pAbortKeyDerivation);
 				break;
 
 			default:
 				TC_THROW_FATAL_EXCEPTION;
 			}
+
+			if (workItem->KeyDerivation.DerivationResult)
+				InterlockedExchange (workItem->KeyDerivation.DerivationResult, derivationResult);
 
 			InterlockedExchange (workItem->KeyDerivation.CompletionFlag, TRUE);
 			TC_SET_EVENT (*workItem->KeyDerivation.CompletionEvent);
@@ -289,6 +296,7 @@ static TC_THREAD_PROC EncryptionThreadProc (void *threadArg)
 			SetWorkItemState (workItem, WorkItemFree);
 			TC_SET_EVENT (WorkItemCompletedEvent);
 			continue;
+			}
 
 		case ReadVolumeHeaderFinalizationWork:
 			TC_WAIT_EVENT (*(workItem->ReadVolumeHeaderFinalization.NoOutstandingWorkItemEvent));
@@ -536,7 +544,7 @@ void EncryptionThreadPoolStop ()
 }
 
 
-void EncryptionThreadPoolBeginKeyDerivation (TC_EVENT *completionEvent, TC_EVENT *noOutstandingWorkItemEvent, LONG *completionFlag, LONG *outstandingWorkItemCount, int pkcs5Prf, unsigned char *password, int passwordLength, unsigned char *salt, int iterationCount, int memoryCost, unsigned char *derivedKey, LONG volatile *pAbortKeyDerivation)
+void EncryptionThreadPoolBeginKeyDerivation (TC_EVENT *completionEvent, TC_EVENT *noOutstandingWorkItemEvent, LONG *completionFlag, LONG *outstandingWorkItemCount, int pkcs5Prf, unsigned char *password, int passwordLength, unsigned char *salt, int iterationCount, int memoryCost, unsigned char *derivedKey, LONG *derivationResult, LONG volatile *pAbortKeyDerivation)
 {
 	EncryptionThreadPoolWorkItem *workItem;
 
@@ -557,6 +565,7 @@ void EncryptionThreadPoolBeginKeyDerivation (TC_EVENT *completionEvent, TC_EVENT
 	workItem->Type = DeriveKeyWork;
 	workItem->KeyDerivation.CompletionEvent = completionEvent;
 	workItem->KeyDerivation.CompletionFlag = completionFlag;
+	workItem->KeyDerivation.DerivationResult = derivationResult;
 	workItem->KeyDerivation.DerivedKey = derivedKey;
 	workItem->KeyDerivation.IterationCount = iterationCount;
 	workItem->KeyDerivation.Memorycost = memoryCost;

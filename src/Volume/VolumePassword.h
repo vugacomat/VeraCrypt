@@ -43,6 +43,7 @@ namespace VeraCrypt
 
 		static const size_t MaxLegacySize;
 		static const size_t MaxSize;
+		static const size_t SmallPimPasswordSizeThreshold;
 		static const size_t WarningSizeThreshold;
 
 	protected:

@@ -59,6 +59,7 @@ namespace VeraCrypt
 		void OnThreadExiting (wxCommandEvent& event);
 		void OnVolumeCreatorFinished ();
 		WizardStep ProcessPageChangeRequest (bool forward);
+		void SetCreationProgressText (const wxString &text);
 
 		volatile bool AbortConfirmationPending;
 		volatile bool AbortRequested;
@@ -87,7 +88,7 @@ namespace VeraCrypt
 		int OuterPim;
 		shared_ptr <Pkcs5Kdf> Kdf;
 		uint32 SectorSize;
-		shared_ptr <Hash> SelectedHash;
+		shared_ptr <Pkcs5Kdf> SelectedKdf;
 		uint64 VolumeSize;
 
 	private:

@@ -12,7 +12,7 @@
 
 #include "System.h"
 #include "Volume/EncryptionTest.h"
-#include "Volume/Hash.h"
+#include "Volume/Pkcs5Kdf.h"
 #include "Main/GraphicUserInterface.h"
 #include "BenchmarkDialog.h"
 #include "EncryptionOptionsWizardPage.h"
@@ -36,11 +36,11 @@ namespace VeraCrypt
 
 		EncryptionAlgorithmChoice->Select (0);
 
-		Hashes = Hash::GetAvailableAlgorithms();
-		foreach (shared_ptr <Hash> hash, Hashes)
+		Kdfs = Pkcs5Kdf::GetAvailableAlgorithms();
+		foreach (shared_ptr <Pkcs5Kdf> kdf, Kdfs)
 		{
-			if (!hash->IsDeprecated())
-				HashChoice->Append (hash->GetName(), hash.get());
+			if (!kdf->IsDeprecated())
+				HashChoice->Append (kdf->GetName(), kdf.get());
 		}
 
 		HashChoice->Select (0);
@@ -68,9 +68,9 @@ namespace VeraCrypt
 		return Gui->GetSelectedData <EncryptionAlgorithm> (EncryptionAlgorithmChoice)->GetNew();
 	}
 
-	shared_ptr <Hash> EncryptionOptionsWizardPage::GetHash () const
+	shared_ptr <Pkcs5Kdf> EncryptionOptionsWizardPage::GetPkcs5Kdf () const
 	{
-		return Gui->GetSelectedData <Hash> (HashChoice)->GetNew();
+		return shared_ptr <Pkcs5Kdf> (Gui->GetSelectedData <Pkcs5Kdf> (HashChoice)->Clone());
 	}
 
 	void EncryptionOptionsWizardPage::OnBenchmarkButtonClick (wxCommandEvent& event)
@@ -155,9 +155,9 @@ namespace VeraCrypt
 		}
 	}
 
-	void EncryptionOptionsWizardPage::SetHash (shared_ptr <Hash> hash)
+	void EncryptionOptionsWizardPage::SetPkcs5Kdf (shared_ptr <Pkcs5Kdf> kdf)
 	{
-		if (hash)
-			HashChoice->SetStringSelection (hash->GetName());
+		if (kdf)
+			HashChoice->SetStringSelection (kdf->GetName());
 	}
 }

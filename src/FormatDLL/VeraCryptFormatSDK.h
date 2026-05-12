@@ -66,7 +66,7 @@ typedef struct _VeraCryptFormatOptions
 	/** The encryption algorithm to use. E.g., L"AES", L"Serpent", L"Twofish", L"AES-Twofish-Serpent". */
 	const wchar_t* encryptionAlgorithm;
 
-	/** The header key derivation and random pool hash algorithm. E.g., L"SHA-512", L"RIPEMD-160", L"Whirlpool", L"BLAKE2s-256", L"SHA-256". */
+	/** The header key derivation algorithm and random pool hash selector. E.g., L"Argon2" (Argon2id KDF), L"SHA-512", L"RIPEMD-160", L"Whirlpool", L"BLAKE2s-256", L"SHA-256". */
 	const wchar_t* hashAlgorithm;
 
 	/** The filesystem for the new volume. E.g., L"NTFS", L"FAT", L"ExFAT", L"ReFS", or L"None". */

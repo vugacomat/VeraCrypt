@@ -13,6 +13,7 @@
 #include "System.h"
 #include "Platform/SystemInfo.h"
 #ifdef TC_UNIX
+#include <errno.h>
 #include <unistd.h>
 #include <sys/statvfs.h> // header for statvfs
 #include "Platform/Unix/Process.h"
@@ -51,6 +52,340 @@ namespace VeraCrypt
 	};
 
 #ifdef TC_MACOSX
+
+	static string DecodeMacOSXPlistXmlString (const string &xmlString)
+	{
+		string decoded;
+
+		for (size_t i = 0; i < xmlString.size(); ++i)
+		{
+			if (xmlString[i] != '&')
+			{
+				decoded += xmlString[i];
+				continue;
+			}
+
+			if (xmlString.compare (i, 5, "&amp;") == 0)
+			{
+				decoded += '&';
+				i += 4;
+			}
+			else if (xmlString.compare (i, 4, "&lt;") == 0)
+			{
+				decoded += '<';
+				i += 3;
+			}
+			else if (xmlString.compare (i, 4, "&gt;") == 0)
+			{
+				decoded += '>';
+				i += 3;
+			}
+			else if (xmlString.compare (i, 6, "&quot;") == 0)
+			{
+				decoded += '"';
+				i += 5;
+			}
+			else if (xmlString.compare (i, 6, "&apos;") == 0)
+			{
+				decoded += '\'';
+				i += 5;
+			}
+			else
+				decoded += xmlString[i];
+		}
+
+		return decoded;
+	}
+
+	static bool ExtractMacOSXPlistString (const string &xml, const string &key, string &value)
+	{
+		string keyTag = "<key>" + key + "</key>";
+		size_t p = xml.find (keyTag);
+		if (p == string::npos)
+			return false;
+
+		p = xml.find ("<string>", p + keyTag.size());
+		if (p == string::npos)
+			return false;
+		p += 8;
+
+		size_t e = xml.find ("</string>", p);
+		if (e == string::npos)
+			return false;
+
+		value = DecodeMacOSXPlistXmlString (xml.substr (p, e - p));
+		return true;
+	}
+
+	static bool ExtractMacOSXPlistBool (const string &xml, const string &key, bool &value)
+	{
+		string keyTag = "<key>" + key + "</key>";
+		size_t p = xml.find (keyTag);
+		if (p == string::npos)
+			return false;
+
+		p += keyTag.size();
+		size_t truePos = xml.find ("<true/>", p);
+		size_t falsePos = xml.find ("<false/>", p);
+		size_t nextKeyPos = xml.find ("<key>", p);
+
+		if (truePos != string::npos && (nextKeyPos == string::npos || truePos < nextKeyPos)
+			&& (falsePos == string::npos || truePos < falsePos))
+		{
+			value = true;
+			return true;
+		}
+
+		if (falsePos != string::npos && (nextKeyPos == string::npos || falsePos < nextKeyPos))
+		{
+			value = false;
+			return true;
+		}
+
+		return false;
+	}
+
+	static list <string> ExtractMacOSXAPFSPhysicalStores (const string &xml)
+	{
+		list <string> stores;
+		size_t arrayPos = xml.find ("<key>APFSPhysicalStores</key>");
+		if (arrayPos == string::npos)
+			return stores;
+
+		size_t arrayEnd = xml.find ("</array>", arrayPos);
+		if (arrayEnd == string::npos)
+			return stores;
+
+		for (size_t p = arrayPos; p < arrayEnd; )
+		{
+			size_t keyPos = xml.find ("<key>APFSPhysicalStore</key>", p);
+			size_t alternateKeyPos = xml.find ("<key>DeviceIdentifier</key>", p);
+
+			if (alternateKeyPos != string::npos && alternateKeyPos < arrayEnd
+				&& (keyPos == string::npos || alternateKeyPos < keyPos))
+				keyPos = alternateKeyPos;
+
+			if (keyPos == string::npos || keyPos >= arrayEnd)
+				break;
+
+			size_t stringPos = xml.find ("<string>", keyPos);
+			if (stringPos == string::npos || stringPos >= arrayEnd)
+				break;
+			stringPos += 8;
+
+			size_t stringEnd = xml.find ("</string>", stringPos);
+			if (stringEnd == string::npos || stringEnd > arrayEnd)
+				break;
+
+			stores.push_back (DecodeMacOSXPlistXmlString (xml.substr (stringPos, stringEnd - stringPos)));
+			p = stringEnd + 9;
+		}
+
+		return stores;
+	}
+
+	static string GetMacOSXDiskutilDevicePath (const VolumePath &devicePath)
+	{
+		string path = devicePath;
+
+		if (path.find ("/dev/rdisk") == 0)
+			path = string ("/dev/disk") + path.substr (10);
+
+		return path;
+	}
+
+	static string GetMacOSXRawDevicePath (const string &deviceIdentifier)
+	{
+		if (deviceIdentifier.find ("/dev/rdisk") == 0)
+			return deviceIdentifier;
+
+		if (deviceIdentifier.find ("/dev/disk") == 0)
+			return string ("/dev/r") + deviceIdentifier.substr (5);
+
+		if (deviceIdentifier.find ("disk") == 0)
+			return string ("/dev/r") + deviceIdentifier;
+
+		return deviceIdentifier;
+	}
+
+	static string GetMacOSXDiskutilInfo (const VolumePath &devicePath)
+	{
+		list <string> args;
+		args.push_back ("info");
+		args.push_back ("-plist");
+		args.push_back (GetMacOSXDiskutilDevicePath (devicePath));
+
+		return Process::Execute ("/usr/sbin/diskutil", args);
+	}
+
+	static bool IsMacOSXSystemSupportContent (const string &content)
+	{
+		string lowerContent = StringConverter::ToLower (content);
+
+		return lowerContent == "efi"
+			|| lowerContent == "apple_apfs_isc"
+			|| lowerContent == "apple_apfs_recovery"
+			|| lowerContent == "apple_boot"
+			|| lowerContent == "apple_partition_map";
+	}
+
+	static bool IsMacOSXSystemMountPoint (const string &mountPoint)
+	{
+		return mountPoint == "/" || mountPoint.find ("/System/Volumes/") == 0;
+	}
+
+	static bool IsMacOSXAPFSSynthesizedDevice (const string &infoXml)
+	{
+		string containerReference;
+		string filesystemType;
+		string virtualOrPhysical;
+		bool partitionMapPartition = false;
+		bool wholeDisk = false;
+		bool hasPartitionMapPartition = ExtractMacOSXPlistBool (infoXml, "PartitionMapPartition", partitionMapPartition);
+		bool hasWholeDisk = ExtractMacOSXPlistBool (infoXml, "WholeDisk", wholeDisk);
+
+		ExtractMacOSXPlistString (infoXml, "APFSContainerReference", containerReference);
+		ExtractMacOSXPlistString (infoXml, "FilesystemType", filesystemType);
+		ExtractMacOSXPlistString (infoXml, "VirtualOrPhysical", virtualOrPhysical);
+
+		if (StringConverter::ToLower (virtualOrPhysical) == "virtual" && !containerReference.empty())
+			return true;
+
+		if (!ExtractMacOSXAPFSPhysicalStores (infoXml).empty() && hasPartitionMapPartition && !partitionMapPartition)
+			return true;
+
+		if (StringConverter::ToLower (filesystemType) == "apfs"
+			&& hasPartitionMapPartition && !partitionMapPartition
+			&& hasWholeDisk && !wholeDisk)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	static bool IsMacOSXDeviceReadOnly (const string &infoXml)
+	{
+		bool value = false;
+		// Writable and ReadOnlyVolume can reflect a read-only filesystem mount;
+		// only media writability is fatal before unmounting.
+		if (ExtractMacOSXPlistBool (infoXml, "ReadOnlyMedia", value) && value)
+			return true;
+		if (ExtractMacOSXPlistBool (infoXml, "WritableMedia", value) && !value)
+			return true;
+
+		return false;
+	}
+
+	static bool IsSelectedMacOSXSystemAPFSDevice (const string &selectedInfoXml, bool &wholeDiskSelected)
+	{
+		wholeDiskSelected = false;
+
+		string selectedDeviceIdentifier;
+		if (!ExtractMacOSXPlistString (selectedInfoXml, "DeviceIdentifier", selectedDeviceIdentifier) || selectedDeviceIdentifier.empty())
+			return false;
+
+		ExtractMacOSXPlistBool (selectedInfoXml, "WholeDisk", wholeDiskSelected);
+
+		try
+		{
+			string rootInfoXml = GetMacOSXDiskutilInfo (VolumePath (FilesystemPath ("/")));
+			list <string> rootStores = ExtractMacOSXAPFSPhysicalStores (rootInfoXml);
+
+			foreach (const string &store, rootStores)
+			{
+				if (selectedDeviceIdentifier == store)
+					return true;
+
+				if (wholeDiskSelected)
+				{
+					try
+					{
+						string storeInfoXml = GetMacOSXDiskutilInfo (VolumePath (FilesystemPath (GetMacOSXRawDevicePath (store))));
+						string storeParentWholeDisk;
+						if (ExtractMacOSXPlistString (storeInfoXml, "ParentWholeDisk", storeParentWholeDisk)
+							&& selectedDeviceIdentifier == storeParentWholeDisk)
+						{
+							return true;
+						}
+					}
+					catch (...) { }
+				}
+			}
+		}
+		catch (...) { }
+
+		return false;
+	}
+
+	static bool ValidateMacOSXSelectedDeviceForCreation (const VolumePath &devicePath)
+	{
+		string infoXml;
+		try
+		{
+			infoXml = GetMacOSXDiskutilInfo (devicePath);
+		}
+		catch (...)
+		{
+			return true;
+		}
+
+		if (IsMacOSXAPFSSynthesizedDevice (infoXml))
+		{
+			wstring recommendedPath;
+			list <string> stores = ExtractMacOSXAPFSPhysicalStores (infoXml);
+			if (!stores.empty())
+				recommendedPath = L" (" + StringConverter::ToWide (GetMacOSXRawDevicePath (stores.front())) + L")";
+
+			Gui->ShowError (StringFormatter (LangString["MACOSX_APFS_SYNTHESIZED_DEVICE"], wstring (devicePath), recommendedPath));
+			return false;
+		}
+
+		string content;
+		if (ExtractMacOSXPlistString (infoXml, "Content", content) && IsMacOSXSystemSupportContent (content))
+		{
+			Gui->ShowError (StringFormatter (LangString["MACOSX_DEVICE_SYSTEM_PARTITION"], wstring (devicePath)));
+			return false;
+		}
+
+		string mountPoint;
+		if (ExtractMacOSXPlistString (infoXml, "MountPoint", mountPoint) && IsMacOSXSystemMountPoint (mountPoint))
+		{
+			Gui->ShowError (LangString["LINUX_ERROR_TRY_ENCRYPT_SYSTEM_PARTITION"]);
+			return false;
+		}
+
+		bool selectedSystemWholeDisk = false;
+		if (IsSelectedMacOSXSystemAPFSDevice (infoXml, selectedSystemWholeDisk))
+		{
+			if (selectedSystemWholeDisk)
+				Gui->ShowError (LangString["LINUX_ERROR_TRY_ENCRYPT_SYSTEM_DRIVE"]);
+			else
+				Gui->ShowError (StringFormatter (LangString["MACOSX_APFS_SYSTEM_STORE"], wstring (devicePath)));
+
+			return false;
+		}
+
+		if (IsMacOSXDeviceReadOnly (infoXml))
+		{
+			Gui->ShowError (StringFormatter (LangString["MACOSX_DEVICE_NOT_WRITABLE"], wstring (devicePath)));
+			return false;
+		}
+
+		return true;
+	}
+
+	static void ShowMacOSXVolumeCreationError (const VolumePath &devicePath, const exception &e)
+	{
+		const SystemException *sysEx = dynamic_cast <const SystemException *> (&e);
+		if (devicePath.IsDevice() && sysEx && sysEx->GetErrorCode() == EROFS)
+		{
+			Gui->ShowError (UserInterface::ExceptionToMessage (e) + L"\n\n" + LangString["MACOSX_APFS_EROFS_HINT"]);
+			return;
+		}
+
+		Gui->ShowError (e);
+	}
 
 	bool VolumeCreationWizard::ProcessEvent(wxEvent& event)
 	{
@@ -174,7 +509,7 @@ namespace VeraCrypt
 					page->SetPageTitle (LangString["CIPHER_TITLE"]);
 
 				page->SetEncryptionAlgorithm (SelectedEncryptionAlgorithm);
-				page->SetHash (SelectedHash);
+				page->SetPkcs5Kdf (SelectedKdf);
 				return page;
 			}
 
@@ -249,7 +584,7 @@ namespace VeraCrypt
 				else
 					page->SetPageTitle (LangString["PIM_TITLE"]);
 
-				page->SetPageText (LangString["PIM_HELP"]);
+				page->SetPageText (LangString[SelectedKdf ? SelectedKdf->GetPimHelpMessageId() : "PIM_HELP"]);
 				page->SetVolumePim (Pim);
 				return page;
 			}
@@ -429,11 +764,14 @@ namespace VeraCrypt
 		VolumeCreator::ProgressInfo progress = Creator->GetProgressInfo();
 
 		VolumeCreationProgressWizardPage *page = dynamic_cast <VolumeCreationProgressWizardPage *> (GetCurrentPage());
-		page->SetProgressValue (progress.SizeDone);
+		if (page)
+		{
+			page->SetProgressStage (progress.Stage);
+			page->SetProgressValue (progress.SizeDone);
+		}
 
 		if (!progress.CreationInProgress && !AbortConfirmationPending)
 		{
-			SetWorkInProgress (false);
 			OnVolumeCreatorFinished ();
 		}
 	}
@@ -447,16 +785,29 @@ namespace VeraCrypt
 		}
 	}
 
+	void VolumeCreationWizard::SetCreationProgressText (const wxString &text)
+	{
+		VolumeCreationProgressWizardPage *page = dynamic_cast <VolumeCreationProgressWizardPage *> (GetCurrentPage());
+		if (!page)
+			return;
+
+		page->SetPageText (text);
+		page->Refresh();
+		page->Update();
+		Gui->Yield();
+	}
+
 	void VolumeCreationWizard::OnVolumeCreatorFinished ()
 	{
 		VolumeCreationProgressWizardPage *page = dynamic_cast <VolumeCreationProgressWizardPage *> (GetCurrentPage());
 
 		ProgressTimer.reset();
-		page->SetProgressState (false);
-
-		Gui->EndInteractiveBusyState (this);
-		SetWorkInProgress (false);
-		UpdateControls();
+		if (page)
+		{
+			page->SetProgressState (false);
+			page->EnableAbort (false);
+		}
+		bool workInProgressCleared = false;
 
 		try
 		{
@@ -472,6 +823,8 @@ namespace VeraCrypt
 				{
 					wxBusyCursor busy;
 
+					SetCreationProgressText (LangString["FORMAT_STAGE_PREPARING_TEMP_VOLUME"]);
+
 					MountOptions mountOptions (Gui->GetPreferences().DefaultMountOptions);
 					mountOptions.Path = make_shared <VolumePath> (SelectedVolumePath);
 					mountOptions.NoFilesystem = true;
@@ -483,10 +836,11 @@ namespace VeraCrypt
 
 					shared_ptr <VolumeInfo> volume = Core->MountVolume (mountOptions);
 					finally_do_arg (shared_ptr <VolumeInfo>, volume, { Core->DismountVolume (finally_arg, true); });
-					
+
 					shared_ptr <VolumeLayout> layout((volume->Type == VolumeType::Normal)? (VolumeLayout*) new VolumeLayoutV2Normal() : (VolumeLayout*) new VolumeLayoutV2Hidden());
 					uint64 filesystemSize = layout->GetMaxDataSize (VolumeSize);
 
+					SetCreationProgressText (LangString["FORMAT_STAGE_PREPARING_TEMP_DEVICE"]);
 					Thread::Sleep (2000);	// Try to prevent race conditions caused by OS
 
 					// Temporarily take ownership of the device if the user is not an administrator
@@ -540,9 +894,15 @@ namespace VeraCrypt
 
 					args.push_back (string (virtualDevice));
 
+					SetCreationProgressText (StringFormatter (LangString["FORMAT_STAGE_CREATING_FILESYSTEM"], fsFormatter));
 					Process::Execute (fsFormatter, args);
+					SetCreationProgressText (LangString["FORMAT_STAGE_DISMOUNTING_TEMP_VOLUME"]);
 				}
 #endif // TC_UNIX
+
+				Gui->EndInteractiveBusyState (this);
+				SetWorkInProgress (false);
+				workInProgressCleared = true;
 
 				if (OuterVolume)
 				{
@@ -559,10 +919,28 @@ namespace VeraCrypt
 		}
 		catch (exception &e)
 		{
+			if (!workInProgressCleared)
+			{
+				Gui->EndInteractiveBusyState (this);
+				SetWorkInProgress (false);
+				workInProgressCleared = true;
+			}
+#ifdef TC_MACOSX
+			ShowMacOSXVolumeCreationError (SelectedVolumePath, e);
+#else
 			Gui->ShowError (e);
+#endif
 		}
 
-		page->SetProgressValue (0);
+		if (!workInProgressCleared)
+		{
+			Gui->EndInteractiveBusyState (this);
+			SetWorkInProgress (false);
+		}
+
+		if (page)
+			page->SetProgressValue (0);
+
 		if (SelectedVolumeType == VolumeType::Normal && !SelectedVolumePath.IsDevice())
 		{
 			try
@@ -632,6 +1010,11 @@ namespace VeraCrypt
 							return GetCurrentStep();
 
 						DeviceWarningConfirmed = true;
+
+#ifdef TC_MACOSX
+						if (!ValidateMacOSXSelectedDeviceForCreation (SelectedVolumePath))
+							return GetCurrentStep();
+#endif
 
 						foreach_ref (const HostDevice &drive, Core->GetHostDevices())
 						{
@@ -708,10 +1091,10 @@ namespace VeraCrypt
 			{
 				EncryptionOptionsWizardPage *page = dynamic_cast <EncryptionOptionsWizardPage *> (GetCurrentPage());
 				SelectedEncryptionAlgorithm = page->GetEncryptionAlgorithm ();
-				SelectedHash = page->GetHash ();
+				SelectedKdf = page->GetPkcs5Kdf ();
 
 				if (forward)
-					RandomNumberGenerator::SetHash (SelectedHash);
+					RandomNumberGenerator::SetHash (SelectedKdf->GetHash());
 
 				if (SelectedVolumePath.IsDevice() && (OuterVolume || SelectedVolumeType != VolumeType::Hidden))
 					return Step::VolumePassword;
@@ -870,17 +1253,23 @@ namespace VeraCrypt
 
 				if (forward && Password && !Password->IsEmpty())
 				{
-					if (Password->Size() < VolumePassword::WarningSizeThreshold)
+					if (!SelectedKdf)
 					{
-						if (Pim > 0 && Pim < 485)
+						Gui->ShowError ("PARAMETER_INCORRECT");
+						return GetCurrentStep();
+					}
+
+					if (Password->Size() < VolumePassword::SmallPimPasswordSizeThreshold)
+					{
+						if (Pim > 0 && Pim < SelectedKdf->GetDefaultPim())
 						{
-							Gui->ShowError ("PIM_REQUIRE_LONG_PASSWORD");
+							Gui->ShowError (SelectedKdf->GetPimRequireLongPasswordMessageId());
 							return GetCurrentStep();
 						}
 					}
-					else if (Pim > 0 && Pim < 485)
+					else if (Pim > 0 && Pim < SelectedKdf->GetDefaultPim())
 					{
-						if (!Gui->AskYesNo (LangString["PIM_SMALL_WARNING"], false, true))
+						if (!Gui->AskYesNo (LangString[SelectedKdf->GetPimSmallWarningMessageId()], false, true))
 						{
 							return GetCurrentStep();
 						}
@@ -1031,7 +1420,7 @@ namespace VeraCrypt
 						options->Quick = QuickFormatEnabled;
 						options->Size = VolumeSize;
 						options->Type = OuterVolume ? VolumeType::Normal : SelectedVolumeType;
-						options->VolumeHeaderKdf = Pkcs5Kdf::GetAlgorithm (*SelectedHash);
+						options->VolumeHeaderKdf = SelectedKdf;
 						options->EMVSupportEnabled = Gui->GetPreferences().EMVSupportEnabled;
 
 
@@ -1063,7 +1452,11 @@ namespace VeraCrypt
 					{
 						CreationAborted = true;
 						OnVolumeCreatorFinished();
+#ifdef TC_MACOSX
+						ShowMacOSXVolumeCreationError (SelectedVolumePath, e);
+#else
 						Gui->ShowError (e);
+#endif
 					}
 				}
 

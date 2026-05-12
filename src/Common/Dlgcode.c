@@ -269,11 +269,13 @@ HCURSOR hCursor = NULL;
 
 ATOM hDlgClass, hSplashClass;
 
-/* This value may changed only by calling ChangeSystemEncryptionStatus(). Only the wizard can change it
-(others may still read it though). */
+/* This value may be changed only by calling ChangeSystemEncryptionStatus() or ClearSystemEncryptionStatus().
+Only the wizard normally changes it: the main application may clear it after EFI repair has completed
+post-decryption finalization. Others may still read it though. */
 int SystemEncryptionStatus = SYSENC_STATUS_NONE;	
 
-/* Only the wizard can change this value (others may only read it). */
+/* Only the wizard normally changes this value. ClearSystemEncryptionStatus() clears it together
+with SystemEncryptionStatus after EFI repair finalizes decryption. Others may only read it. */
 WipeAlgorithmId nWipeMode = TC_WIPE_NONE;
 
 BOOL bSysPartitionSelected = FALSE;		/* TRUE if the user selected the system partition via the Select Device dialog */
@@ -3588,6 +3590,57 @@ BOOL LoadSysEncSettings ()
 	return status;
 }
 
+static BOOL CALLBACK BroadcastSysEncCfgUpdateCommonCallb (HWND hwnd, LPARAM lParam)
+{
+	LONG_PTR userDataVal = GetWindowLongPtrW (hwnd, GWLP_USERDATA);
+	if ((userDataVal == (LONG_PTR) 'VERA') || (userDataVal == (LONG_PTR) 'TRUE')) // Prior to 1.0e, 'TRUE' was used for VeraCrypt dialogs
+	{
+		wchar_t name[1024] = { 0 };
+		GetWindowText (hwnd, name, ARRAYSIZE (name) - 1);
+		if (hwnd != MainDlg && wcsstr (name, L"VeraCrypt"))
+		{
+			PostMessage (hwnd, TC_APPMSG_SYSENC_CONFIG_UPDATE, 0, 0);
+		}
+	}
+	return TRUE;
+}
+
+static BOOL BroadcastSysEncCfgUpdateCommon (void)
+{
+	BOOL bSuccess = FALSE;
+	EnumWindows (BroadcastSysEncCfgUpdateCommonCallb, (LPARAM) &bSuccess);
+	return bSuccess;
+}
+
+BOOL ClearSystemEncryptionStatus (HWND hwndDlg)
+{
+	BOOL bMutexAlreadyHeld = InstanceHasSysEncMutex ();
+	wchar_t *sysEncCfgPath = GetConfigPath (TC_APPD_FILENAME_SYSTEM_ENCRYPTION);
+
+	if (!bMutexAlreadyHeld && !CreateSysEncMutex ())
+	{
+		Error ("SYSTEM_ENCRYPTION_IN_PROGRESS_ELSEWHERE", hwndDlg);
+		return FALSE;
+	}
+
+	if (FileExists (sysEncCfgPath) && _wremove (sysEncCfgPath) != 0)
+	{
+		Error ("CANNOT_SAVE_SYS_ENCRYPTION_SETTINGS", hwndDlg);
+		if (!bMutexAlreadyHeld)
+			CloseSysEncMutex ();
+		return FALSE;
+	}
+
+	SystemEncryptionStatus = SYSENC_STATUS_NONE;
+	nWipeMode = TC_WIPE_NONE;
+	BroadcastSysEncCfgUpdateCommon ();
+
+	if (!bMutexAlreadyHeld)
+		CloseSysEncMutex ();
+
+	return TRUE;
+}
+
 
 // Returns the number of partitions where non-system in-place encryption is progress or had been in progress
 // but was interrupted. In addition, via the passed pointer, returns the last selected wipe algorithm ID.
@@ -5729,6 +5782,11 @@ void handleError (HWND hwndDlg, int code, const char* srcPos)
 	case ERR_CIPHER_INIT_WEAK_KEY:
 		MessageBoxW (hwndDlg, AppendSrcPos (GetString ("ERR_CIPHER_INIT_WEAK_KEY"), srcPos).c_str(), lpszTitle, ICON_HAND);
 		break;
+
+	case ERR_KEY_DERIVATION_FAILED:
+		MessageBoxW (hwndDlg, AppendSrcPos (GetString ("ERR_KEY_DERIVATION_FAILED"), srcPos).c_str(), lpszTitle, ICON_HAND);
+		break;
+
 	case ERR_VOL_ALREADY_MOUNTED:
 		MessageBoxW (hwndDlg, AppendSrcPos (GetString ("VOL_ALREADY_MOUNTED"), srcPos).c_str(), lpszTitle, ICON_HAND);
 		break;
@@ -6512,7 +6570,8 @@ static BOOL PerformBenchmark(HWND hBenchDlg, HWND hwndDlg)
 				
 				case ARGON2:
 					/* test with ARGON2 used as the PRF */
-					derive_key_argon2 ((const unsigned char*) "passphrase-1234567890", 21, (const unsigned char*)tmp_salt, 64, iterations, memoryCost, dk, MASTER_KEYDATA_SIZE, NULL);
+					if (derive_key_argon2 ((const unsigned char*) "passphrase-1234567890", 21, (const unsigned char*)tmp_salt, 64, iterations, memoryCost, dk, MASTER_KEYDATA_SIZE, NULL) != 0)
+						goto key_derivation_error;
  					break;
 				}
 	                   #endif	
@@ -6638,6 +6697,26 @@ static BOOL PerformBenchmark(HWND hBenchDlg, HWND hwndDlg)
 
 	NormalCursor ();
 	return TRUE;
+
+key_derivation_error:
+
+	if (ci)
+		crypto_close (ci);
+
+	if (lpTestBuffer)
+	{
+		VirtualUnlock (lpTestBuffer, benchmarkBufferSize - (benchmarkBufferSize % 16));
+
+		_aligned_free(lpTestBuffer);
+	}
+
+	NormalCursor ();
+
+	EnableWindow (GetDlgItem (hBenchDlg, IDC_PERFORM_BENCHMARK), TRUE);
+	EnableWindow (GetDlgItem (hBenchDlg, IDCLOSE), TRUE);
+
+	MessageBoxW (hwndDlg, GetString ("ERR_KEY_DERIVATION_FAILED"), lpszTitle, ICON_HAND);
+	return FALSE;
 
 counter_error:
 	
@@ -7626,8 +7705,14 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		if (lw == IDC_AUTO)
 		{
+			BOOL testsPassed;
 			WaitCursor ();
-			if (!AutoTestAlgorithms())
+			testsPassed = AutoTestAlgorithms();
+			#if !defined(TC_WINDOWS_DRIVER) && !defined(_UEFI)
+			if (testsPassed && !XmlTest())
+				testsPassed = FALSE;
+			#endif
+			if (!testsPassed)
 			{
 				ShowWindow(GetDlgItem(hwndDlg, IDC_TESTS_MESSAGE), SW_SHOWNORMAL);
 				SetWindowTextW(GetDlgItem(hwndDlg, IDC_TESTS_MESSAGE), GetString ("TESTS_FAILED"));
@@ -10484,8 +10569,6 @@ void TaskBarIconDisplayBalloonTooltip (HWND hwnd, wchar_t *headline, wchar_t *te
 	StringCbCopyW (tnid.szInfoTitle, sizeof(tnid.szInfoTitle), headline);
 	StringCbCopyW (tnid.szInfo, sizeof(tnid.szInfo),text);
 
-	// Display the balloon tooltip quickly twice in a row to avoid the slow and unwanted "fade-in" phase
-	Shell_NotifyIconW (NIM_MODIFY, &tnid);
 	Shell_NotifyIconW (NIM_MODIFY, &tnid);
 }
 

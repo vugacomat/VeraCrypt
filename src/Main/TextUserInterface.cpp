@@ -30,6 +30,30 @@
 
 namespace VeraCrypt
 {
+	static bool CheckCustomPimForPassword (const TextUserInterface *ui, const shared_ptr <VolumePassword> &password, int pim, const shared_ptr <Pkcs5Kdf> &kdf, bool interactive)
+	{
+		int defaultPim = kdf ? kdf->GetDefaultPim() : 0;
+		if (!password || password->Size() == 0 || pim <= 0 || defaultPim <= 0 || pim >= defaultPim)
+			return true;
+
+		if (password->Size() < VolumePassword::SmallPimPasswordSizeThreshold)
+		{
+			const char *messageId = kdf ? kdf->GetPimRequireLongPasswordMessageId() : "PIM_REQUIRE_LONG_PASSWORD";
+			if (interactive)
+			{
+				ui->ShowError (messageId);
+				return false;
+			}
+
+			throw_err (LangString [messageId]);
+		}
+
+		if (interactive && !ui->AskYesNo (LangString [kdf ? kdf->GetPimSmallWarningMessageId() : "PIM_SMALL_WARNING"], false, true))
+			return false;
+
+		return true;
+	}
+
 	class AdminPasswordTextRequestHandler : public GetStringFunctor
 	{
 		public:
@@ -295,11 +319,7 @@ namespace VeraCrypt
 
 		ShowInfo ("EXTERNAL_VOL_HEADER_BAK_FIRST_INFO");
 
-		shared_ptr <Pkcs5Kdf> kdf;
-		if (CmdLine->ArgHash)
-		{
-			kdf = Pkcs5Kdf::GetAlgorithm (*CmdLine->ArgHash);
-		}
+		shared_ptr <Pkcs5Kdf> kdf = CmdLine->ArgHash;
 
 		shared_ptr <Volume> normalVolume;
 		shared_ptr <Volume> hiddenVolume;
@@ -468,7 +488,7 @@ namespace VeraCrypt
 			ShowWarning ("ERR_XTS_MASTERKEY_VULNERABLE");
 	}
 
-	void TextUserInterface::ChangePassword (shared_ptr <VolumePath> volumePath, shared_ptr <VolumePassword> password, int pim, shared_ptr <Hash> currentHash, shared_ptr <KeyfileList> keyfiles, shared_ptr <VolumePassword> newPassword, int newPim, shared_ptr <KeyfileList> newKeyfiles, shared_ptr <Hash> newHash) const
+	void TextUserInterface::ChangePassword (shared_ptr <VolumePath> volumePath, shared_ptr <VolumePassword> password, int pim, shared_ptr <Pkcs5Kdf> currentKdf, shared_ptr <KeyfileList> keyfiles, shared_ptr <VolumePassword> newPassword, int newPim, shared_ptr <KeyfileList> newKeyfiles, shared_ptr <Pkcs5Kdf> newKdf) const
 	{
 		shared_ptr <Volume> volume;
 
@@ -487,11 +507,7 @@ namespace VeraCrypt
 		bool passwordInteractive = !password.get();
 		bool keyfilesInteractive = !keyfiles.get();
 
-		shared_ptr<Pkcs5Kdf> kdf;
-		if (currentHash)
-		{
-			kdf = Pkcs5Kdf::GetAlgorithm (*currentHash);
-		}
+		shared_ptr <Pkcs5Kdf> kdf = currentKdf;
 
 		while (true)
 		{
@@ -555,8 +571,24 @@ namespace VeraCrypt
 			newPassword = AskPassword (_("Enter new password"), true);
 
 		// New PIM
-		if ((newPim < 0) && !Preferences.NonInteractive)
-			newPim = AskPim (_("Enter new PIM"));
+		shared_ptr <Pkcs5Kdf> effectiveNewKdf = newKdf ? newKdf : volume->GetPkcs5Kdf();
+		bool newPimInteractive = false;
+		while (true)
+		{
+			if ((newPim < 0) && !Preferences.NonInteractive)
+			{
+				newPim = AskPim (_("Enter new PIM"));
+				newPimInteractive = true;
+			}
+
+			if (CheckCustomPimForPassword (this, newPassword, newPim, effectiveNewKdf, !Preferences.NonInteractive))
+				break;
+
+			if (!newPimInteractive)
+				throw UserAbort (SRC_POS);
+
+			newPim = -1;
+		}
 
 		// New keyfiles
 		if (!newKeyfiles.get() && !Preferences.NonInteractive)
@@ -571,8 +603,7 @@ namespace VeraCrypt
 		RandomNumberGenerator::SetEnrichedByUserStatus (false);
 		UserEnrichRandomPool();
 
-		Core->ChangePassword (volume, newPassword, newPim, newKeyfiles, true,
-			newHash ? Pkcs5Kdf::GetAlgorithm (*newHash) : shared_ptr <Pkcs5Kdf>());
+		Core->ChangePassword (volume, newPassword, newPim, newKeyfiles, true, newKdf);
 
 		ShowInfo ("PASSWORD_CHANGED");
 	}
@@ -845,27 +876,26 @@ namespace VeraCrypt
 			options->EA = encryptionAlgorithms[AskSelection (encryptionAlgorithms.size(), 1) - 1];
 		}
 
-		// Hash algorithm
+		// Header key derivation function
 		if (!options->VolumeHeaderKdf)
 		{
 			if (Preferences.NonInteractive)
 				throw MissingArgument (SRC_POS);
 
-			ShowInfo (_("\nHash algorithm:"));
+			ShowInfo (_("\nKey derivation function:"));
 
-			vector < shared_ptr <Hash> > hashes;
-			foreach (shared_ptr <Hash> hash, Hash::GetAvailableAlgorithms())
+			vector < shared_ptr <Pkcs5Kdf> > kdfs;
+			foreach (shared_ptr <Pkcs5Kdf> kdf, Pkcs5Kdf::GetAvailableAlgorithms())
 			{
-				if (!hash->IsDeprecated())
+				if (!kdf->IsDeprecated())
 				{
-					ShowString (StringFormatter (L" {0}) {1}\n", (uint32) hashes.size() + 1, hash->GetName()));
-					hashes.push_back (hash);
+					ShowString (StringFormatter (L" {0}) {1}\n", (uint32) kdfs.size() + 1, kdf->GetName()));
+					kdfs.push_back (kdf);
 				}
 			}
 
-			shared_ptr <Hash> selectedHash = hashes[AskSelection (hashes.size(), 1) - 1];
-			RandomNumberGenerator::SetHash (selectedHash);
-			options->VolumeHeaderKdf = Pkcs5Kdf::GetAlgorithm (*selectedHash);
+			options->VolumeHeaderKdf = kdfs[AskSelection (kdfs.size(), 1) - 1];
+			RandomNumberGenerator::SetHash (options->VolumeHeaderKdf->GetHash());
 
 		}
 
@@ -939,10 +969,23 @@ namespace VeraCrypt
 		}
 
 		// PIM
-		if ((options->Pim < 0) && !Preferences.NonInteractive)
+		bool pimInteractive = false;
+		while (true)
 		{
-			ShowString (L"\n");
-			options->Pim = AskPim (_("Enter PIM"));
+			if ((options->Pim < 0) && !Preferences.NonInteractive)
+			{
+				ShowString (L"\n");
+				options->Pim = AskPim (_("Enter PIM"));
+				pimInteractive = true;
+			}
+
+			if (CheckCustomPimForPassword (this, options->Password, options->Pim, options->VolumeHeaderKdf, !Preferences.NonInteractive))
+				break;
+
+			if (!pimInteractive)
+				throw UserAbort (SRC_POS);
+
+			options->Pim = -1;
 		}
 
 		// Keyfiles
@@ -1546,11 +1589,7 @@ namespace VeraCrypt
 
 		// Ask whether to restore internal or external backup
 		bool restoreInternalBackup;
-		shared_ptr <Pkcs5Kdf> kdf;
-		if (CmdLine->ArgHash)
-		{
-			kdf = Pkcs5Kdf::GetAlgorithm (*CmdLine->ArgHash);
-		}
+		shared_ptr <Pkcs5Kdf> kdf = CmdLine->ArgHash;
 
 		ShowInfo (LangString["HEADER_RESTORE_EXTERNAL_INTERNAL"]);
 		ShowInfo (L"\n1) " + LangString["HEADER_RESTORE_INTERNAL"]);
@@ -1799,7 +1838,7 @@ namespace VeraCrypt
 			return;
 
 		if (CmdLine->ArgHash)
-			RandomNumberGenerator::SetHash (CmdLine->ArgHash);
+			RandomNumberGenerator::SetHash (CmdLine->ArgHash->GetHash());
 
 		if (!CmdLine->ArgRandomSourcePath.IsEmpty())
 		{

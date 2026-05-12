@@ -299,7 +299,9 @@ namespace VeraCrypt
 						
 						for (int i = 1; i <= 2; i++) 
 						{
-							prf->DeriveKey (dk, password, pim, salt);
+							int derivationResult = prf->DeriveKey (dk, password, pim, salt);
+							if (derivationResult != 0)
+								throw ExternalException (SRC_POS, prf->GetDerivationFailureMessage (derivationResult));
 						}
 						
 						time = (uint64) (wxGetLocalTimeMillis().GetValue() - startTime.GetValue());

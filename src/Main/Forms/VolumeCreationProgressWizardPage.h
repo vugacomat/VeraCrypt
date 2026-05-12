@@ -30,8 +30,9 @@ namespace VeraCrypt
 		void OnRandomPoolTimer ();
 		void SetKeyInfo (const VolumeCreator::KeyInfo &keyInfo);
 		void SetMaxStaticTextWidth (int width);
-		void SetPageText (const wxString &text) { InfoStaticText->SetLabel (text); }
+		void SetPageText (const wxString &text);
 		void SetProgressRange (uint64 progressBarRange);
+		void SetProgressStage (VolumeCreator::ProgressStage::Enum stage);
 		void SetProgressValue (uint64 value);
 		void SetProgressState (bool volumeCreatorRunning);
 		void IncrementEntropyProgress ();
@@ -54,6 +55,8 @@ namespace VeraCrypt
 		bool VolumeCreatorRunning;
 		int MouseEventsCounter;
 		Mutex AccessMutex;
+		VolumeCreator::ProgressStage::Enum CurrentProgressStage;
+		int MaxStaticTextWidth;
 	};
 }
 

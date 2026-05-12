@@ -18,6 +18,7 @@ namespace VeraCrypt
 {
 	const size_t VolumePassword::MaxLegacySize = 64;
 	const size_t VolumePassword::MaxSize = 128;
+	const size_t VolumePassword::SmallPimPasswordSizeThreshold = 20;
 	const size_t VolumePassword::WarningSizeThreshold = 12;
 		
 	VolumePassword::VolumePassword () : PasswordSize (0)

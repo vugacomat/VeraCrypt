@@ -161,10 +161,27 @@ UINT64_STRUCT GetHeaderField64 (uint8 *header, int offset)
 typedef struct
 {
 	unsigned char DerivedKey[MASTER_KEYDATA_SIZE];
+	LONG DerivationResult;
 	BOOL Free;
 	LONG KeyReady;
 	int Pkcs5Prf;
 } KeyDerivationWorkItem;
+
+#ifndef VC_DCS_DISABLE_ARGON2
+static int MapArgon2ResultToVcError (int result)
+{
+	if (result == 0)
+		return ERR_SUCCESS;
+
+	if (result == ARGON2_MEMORY_ALLOCATION_ERROR)
+		return ERR_OUTOFMEMORY;
+
+	if (result == ARGON2_OPERATION_CANCELLED)
+		return ERR_USER_ABORT;
+
+	return ERR_KEY_DERIVATION_FAILED;
+}
+#endif
 
 
 BOOL ReadVolumeHeaderRecoveryMode = FALSE;
@@ -186,6 +203,9 @@ int ReadVolumeHeader (BOOL bBoot, unsigned char *encryptedHeader, Password *pass
 	int iterationsCount = 0;
 	int memoryCost = 0;
 	LONG volatile abortKeyDerivation = 0;
+#ifndef VC_DCS_DISABLE_ARGON2
+	int lastArgon2DerivationResult = 0;
+#endif
 #if !defined(_UEFI)
 	TC_EVENT *keyDerivationCompletedEvent = NULL;
 	TC_EVENT *noOutstandingWorkItemEvent = NULL;
@@ -329,12 +349,13 @@ int ReadVolumeHeader (BOOL bBoot, unsigned char *encryptedHeader, Password *pass
 					{
 						item->Free = FALSE;
 						item->KeyReady = FALSE;
+						item->DerivationResult = 0;
 						item->Pkcs5Prf = enqPkcs5Prf;
 
 						iterationsCount = get_pkcs5_iteration_count (enqPkcs5Prf, pim, bBoot, &memoryCost);
 						EncryptionThreadPoolBeginKeyDerivation (keyDerivationCompletedEvent, noOutstandingWorkItemEvent,
 							&item->KeyReady, outstandingWorkItemCount, enqPkcs5Prf, keyInfo->userKey,
-							keyInfo->keyLength, keyInfo->salt, iterationsCount, memoryCost, item->DerivedKey, &abortKeyDerivation);
+							keyInfo->keyLength, keyInfo->salt, iterationsCount, memoryCost, item->DerivedKey, &item->DerivationResult, &abortKeyDerivation);
 
 						++queuedWorkItems;
 						break;
@@ -355,6 +376,18 @@ int ReadVolumeHeader (BOOL bBoot, unsigned char *encryptedHeader, Password *pass
 					item = &keyDerivationWorkItems[i];
 					if (!item->Free && InterlockedExchangeAdd (&item->KeyReady, 0) == TRUE)
 					{
+						LONG derivationResult = InterlockedExchangeAdd (&item->DerivationResult, 0);
+						if (derivationResult != 0)
+						{
+#ifndef VC_DCS_DISABLE_ARGON2
+							if (item->Pkcs5Prf == ARGON2)
+								lastArgon2DerivationResult = (int) derivationResult;
+#endif
+							item->Free = TRUE;
+							--queuedWorkItems;
+							continue;
+						}
+
 						pkcs5_prf = item->Pkcs5Prf;
 						iterationsCount = get_pkcs5_iteration_count (pkcs5_prf, pim, bBoot, &memoryCost);
 						keyInfo->noIterations = iterationsCount;
@@ -413,8 +446,21 @@ KeyReady:	;
 
 #ifndef VC_DCS_DISABLE_ARGON2
 			case ARGON2:
-				derive_key_argon2(keyInfo->userKey, keyInfo->keyLength, keyInfo->salt,
-					PKCS5_SALT_SIZE, keyInfo->noIterations, keyInfo->memoryCost, dk, GetMaxPkcs5OutSize(), &abortKeyDerivation);
+				{
+					int derivationResult = derive_key_argon2(keyInfo->userKey, keyInfo->keyLength, keyInfo->salt,
+						PKCS5_SALT_SIZE, keyInfo->noIterations, keyInfo->memoryCost, dk, GetMaxPkcs5OutSize(), &abortKeyDerivation);
+					if (derivationResult != 0)
+					{
+						if (selected_pkcs5_prf == 0)
+						{
+							lastArgon2DerivationResult = derivationResult;
+							continue;
+						}
+
+						status = MapArgon2ResultToVcError (derivationResult);
+						goto err;
+					}
+				}
 				break;
 #endif
 #endif	
@@ -632,7 +678,12 @@ KeyReady:	;
 			}
 		}
 	}
-	status = ERR_PASSWORD_WRONG;
+#ifndef VC_DCS_DISABLE_ARGON2
+	if (lastArgon2DerivationResult != 0)
+		status = MapArgon2ResultToVcError (lastArgon2DerivationResult);
+	else
+#endif
+		status = ERR_PASSWORD_WRONG;
 
 err:
 #if !defined(_UEFI)
@@ -1077,8 +1128,16 @@ int CreateVolumeHeaderInMemory (HWND hwndDlg, BOOL bBoot, unsigned char *header,
 
 #ifndef VC_DCS_DISABLE_ARGON2
 		case ARGON2:
-			derive_key_argon2(keyInfo.userKey, keyInfo.keyLength, keyInfo.salt,
-				PKCS5_SALT_SIZE, keyInfo.noIterations, keyInfo.memoryCost, dk, GetMaxPkcs5OutSize(), NULL);
+			{
+				int derivationResult = derive_key_argon2(keyInfo.userKey, keyInfo.keyLength, keyInfo.salt,
+					PKCS5_SALT_SIZE, keyInfo.noIterations, keyInfo.memoryCost, dk, GetMaxPkcs5OutSize(), NULL);
+				if (derivationResult != 0)
+				{
+					crypto_close (cryptoInfo);
+					retVal = MapArgon2ResultToVcError (derivationResult);
+					goto err;
+				}
+			}
 			break;
 #endif
         #endif
@@ -1276,7 +1335,7 @@ err:
 	VirtualUnlock (&dk, sizeof (dk));
 #endif // !defined(_UEFI)
 
-	return 0;
+	return retVal;
 }
 
 #if !defined(_UEFI)

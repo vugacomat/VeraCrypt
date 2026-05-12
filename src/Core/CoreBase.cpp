@@ -67,7 +67,9 @@ namespace VeraCrypt
 				else
 					RandomNumberGenerator::GetDataFast (newSalt);
 
-				newPkcs5Kdf->DeriveKey (newHeaderKey, *password, newPim, newSalt);
+				int derivationResult = newPkcs5Kdf->DeriveKey (newHeaderKey, *password, newPim, newSalt);
+				if (derivationResult != 0)
+					throw ExternalException (SRC_POS, newPkcs5Kdf->GetDerivationFailureMessage (derivationResult));
 
 				openVolume->ReEncryptHeader (backupHeader, newSalt, newHeaderKey, newPkcs5Kdf);
 				openVolume->GetFile()->Flush();
@@ -289,7 +291,9 @@ namespace VeraCrypt
 		shared_ptr <VolumePassword> passwordKey (Keyfile::ApplyListToPassword (keyfiles, password, emvSupportEnabled));
 
 		RandomNumberGenerator::GetData (newSalt);
-		pkcs5Kdf->DeriveKey (newHeaderKey, *passwordKey, pim, newSalt);
+		int derivationResult = pkcs5Kdf->DeriveKey (newHeaderKey, *passwordKey, pim, newSalt);
+		if (derivationResult != 0)
+			throw ExternalException (SRC_POS, pkcs5Kdf->GetDerivationFailureMessage (derivationResult));
 
 		header->EncryptNew (newHeaderBuffer, newSalt, newHeaderKey, pkcs5Kdf);
 	}

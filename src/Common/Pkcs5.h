@@ -45,7 +45,7 @@ int get_pkcs5_iteration_count (int pkcs5_prf_id, int pim, BOOL bBoot, int* pMemo
 wchar_t *get_kdf_name (int kdf_id);
 
 #ifndef VC_DCS_DISABLE_ARGON2
-void derive_key_argon2(const unsigned char *pwd, int pwd_len, const unsigned char *salt, int salt_len, uint32 iterations, uint32 memcost, unsigned char *dk, int dklen, long volatile *pAbortKeyDerivation);
+int derive_key_argon2(const unsigned char *pwd, int pwd_len, const unsigned char *salt, int salt_len, uint32 iterations, uint32 memcost, unsigned char *dk, int dklen, long volatile *pAbortKeyDerivation);
 void get_argon2_params(int pim, int* pIterations, int* pMemcost);
 #endif
 

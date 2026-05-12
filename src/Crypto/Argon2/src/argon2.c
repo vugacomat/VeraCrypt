@@ -288,6 +288,8 @@ const char *argon2_error_message(int error_code) {
         return "Some of encoded parameters are too long or too short";
     case ARGON2_VERIFY_MISMATCH:
         return "The password does not match the supplied hash";
+    case ARGON2_OPERATION_CANCELLED:
+        return "Operation cancelled";
     default:
         return "Unknown error code";
     }

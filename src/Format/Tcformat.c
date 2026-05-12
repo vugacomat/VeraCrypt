@@ -792,6 +792,22 @@ static BOOL CreatingHiddenSysVol (void)
 		&& bHiddenVol && !bHiddenVolHost);
 }
 
+static const char *GetPimHelpStringId (int pkcs5Prf, BOOL systemEncryption)
+{
+#if !defined (WOLFCRYPT_BACKEND) && !defined (VC_DCS_DISABLE_ARGON2)
+	if (pkcs5Prf == ARGON2)
+		return "PIM_ARGON2_HELP";
+#endif
+#ifndef WOLFCRYPT_BACKEND
+	if (systemEncryption && pkcs5Prf != SHA512 && pkcs5Prf != WHIRLPOOL)
+		return "PIM_SYSENC_HELP";
+#else
+	if (systemEncryption && pkcs5Prf != SHA512)
+		return "PIM_SYSENC_HELP";
+#endif
+	return "PIM_HELP";
+}
+
 static void LoadSettingsAndCheckModified (HWND hwndDlg, BOOL bOnlyCheckModified, BOOL* pbSettingsModified, BOOL* pbHistoryModified)
 {
 	if (!bOnlyCheckModified)
@@ -4500,11 +4516,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 
 				SetFocus (GetDlgItem (hwndDlg, IDC_PIM));
-                            #ifndef WOLFCRYPT_BACKEND
-				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString (SysEncInEffect () && hash_algo != SHA512 && hash_algo != WHIRLPOOL? "PIM_SYSENC_HELP" : "PIM_HELP"));
-                            #else
-				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString (SysEncInEffect () && hash_algo != SHA512? "PIM_SYSENC_HELP" : "PIM_HELP"));
-                            #endif
+				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString (GetPimHelpStringId (hash_algo, SysEncInEffect ())));
 				ToHyperlink (hwndDlg, IDC_LINK_PIM_INFO);
 
 				if (CreatingHiddenSysVol())
@@ -6665,6 +6677,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 								catch (Exception &e)
 								{
 									e.Show (hwndDlg);
+									return 1;
 								}
 
 								ManageStartupSeqWiz (TRUE, L"");

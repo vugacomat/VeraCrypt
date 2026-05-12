@@ -59,7 +59,7 @@ extern unsigned short _rotl16(unsigned short value, unsigned char shift);
 #define TC_APP_NAME						"VeraCrypt"
 
 // Version displayed to user 
-#define VERSION_STRING					"1.26.27"
+#define VERSION_STRING					"1.26.28"
 
 #ifdef VC_EFI_CUSTOM_MODE
 #define VERSION_STRING_SUFFIX			"-CustomEFI"
@@ -73,9 +73,9 @@ extern unsigned short _rotl16(unsigned short value, unsigned char shift);
 #define VERSION_NUM						0x0126
 
 // Release date
-#define TC_STR_RELEASE_DATE			L"September 20, 2025"
-#define TC_RELEASE_DATE_YEAR			2025
-#define TC_RELEASE_DATE_MONTH			 9
+#define TC_STR_RELEASE_DATE			L"April 30, 2026"
+#define TC_RELEASE_DATE_YEAR			2026
+#define TC_RELEASE_DATE_MONTH			 4
 
 #define BYTES_PER_KB                    1024LL
 #define BYTES_PER_MB                    1048576LL
@@ -456,7 +456,8 @@ enum
 	ERR_RAND_INIT_FAILED					= 34,
 	ERR_CAPI_INIT_FAILED					= 35,
 	ERR_XTS_MASTERKEY_VULNERABLE			= 36,
-	ERR_SYSENC_XTS_MASTERKEY_VULNERABLE			= 37
+	ERR_SYSENC_XTS_MASTERKEY_VULNERABLE			= 37,
+	ERR_KEY_DERIVATION_FAILED				= 38
 };
 
 #endif 	// #ifndef TCDEFS_H

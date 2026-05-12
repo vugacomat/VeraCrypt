@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VeraCrypt>
-  <localization prog-version= "1.26.27">
+  <localization prog-version="1.26.28">
     <language langid="zh-cn" name="简体中文" en-name="Chinese (Simplified)" version="1.0.3" translators="Barney Li, Zhangjintao, Nkh0472, 风之暇想" />
     <font lang="zh-cn" class="normal" size="12" face="Microsoft YaHei" />
     <font lang="zh-cn" class="bold" size="14" face="Microsoft YaHei" />
@@ -1654,6 +1654,40 @@
     <entry lang="zh-cn" key="IDD_PREFERENCES_TAB_PASSWORD">密码</entry>
     <entry lang="zh-cn" key="IDC_SECURE_DESKTOP_ENABLE_IME">在安全桌面中启用输入法编辑器（IME）</entry>
     <entry lang="zh-cn" key="ENABLE_IME_IN_SECURE_DESKTOP_WARNING">警告：仅当您在安全桌面下选择密钥文件/令牌时遇到问题时，才启用此选项。</entry>
+    <entry lang="zh-cn" key="ERR_KEY_DERIVATION_FAILED">密钥派生失败。这可能由内存不足或操作被中断导致。</entry>
+    <entry lang="zh-cn" key="EFI_MS_BOOT_LOADER_RESTORE_FAILED">系统分区/驱动器已解密，但 EFI Microsoft 引导加载程序路径未恢复到 Windows 启动管理器。仅需修复 EFI 引导文件。请使用 VeraCrypt 救援盘修复选项，或启动 Windows 恢复介质，运行 'bcdboot W:\\Windows /s S: /f UEFI'（将 W: 替换为 Windows 卷的驱动器号，S: 替换为 EFI 系统分区的驱动器号）。路径：</entry>
+    <entry lang="zh-cn" key="EFI_FALLBACK_BOOT_LOADER_STILL_VERACRYPT">系统分区/驱动器已解密，但 EFI 回退引导加载程序路径中仍包含 VeraCrypt 引导加载程序。仅需修复 EFI 引导文件。请使用 VeraCrypt 救援盘修复选项，或启动 Windows 恢复介质，运行 'bcdboot W:\\Windows /s S: /f UEFI'（将 W: 替换为 Windows 卷的驱动器号，S: 替换为 EFI 系统分区的驱动器号）。路径：</entry>
+    <entry lang="zh-cn" key="IDM_REPAIR_EFI_BOOT_LOADER">修复 EFI 引导加载程序...</entry>
+    <entry lang="zh-cn" key="CONFIRM_REPAIR_EFI_BOOT_LOADER">VeraCrypt 将还原 Windows EFI 引导加载程序路径，并移除 VeraCrypt EFI 引导项和文件。\n\n仅在系统分区/驱动器已完全解密且 Windows 无需系统加密即可启动后使用。\n\n是否继续？</entry>
+    <entry lang="zh-cn" key="EFI_BOOT_LOADER_FILE_READ_FAILED">无法完整读取 EFI 引导加载程序文件：</entry>
+    <entry lang="zh-cn" key="EFI_BOOT_LOADER_FILE_TOO_LARGE">EFI 引导加载程序文件意外过大，未进行检查：</entry>
+    <entry lang="zh-cn" key="EFI_BOOT_LOADER_NVRAM_CLEANUP_FAILED">系统分区/驱动器已解密且 EFI 引导文件已还原，但 VeraCrypt 无法移除一个或多个 VeraCrypt 固件引导项。VeraCrypt EFI 文件已保留，因此任何剩余的固件项仍指向现有的加载程序。请以管理员身份重试，或在确认 Windows 启动管理器正常启动后从固件设置中移除 VeraCrypt 引导项。</entry>
+    <entry lang="zh-cn" key="EFI_BOOT_LOADER_REPAIR_BLOCKED">系统加密或解密正在进行或未完成时，无法修复 EFI 引导加载程序。请先完成或继续挂起的系统加密/解密过程，然后再重试。</entry>
+    <entry lang="zh-cn" key="EFI_BOOT_LOADER_REPAIR_NOT_APPLICABLE">此修复操作仅适用于从 GPT 系统分区以 UEFI 模式启动的系统。</entry>
+    <entry lang="zh-cn" key="EFI_BOOT_LOADER_REPAIR_SUCCESS">EFI 引导加载程序已成功修复。</entry>
+    <entry lang="zh-cn" key="PIM_ARGON2_HELP">PIM（个人迭代乘数）控制 Argon2id 头部密钥派生所使用的内存和时间开销，规则如下：\n      内存 = min(64 MiB + ((PIM - 1) x 32 MiB), 1024 MiB)\n      迭代次数 = 当 PIM ≤ 31 时，为 3 + ((PIM - 1) / 3)；当 PIM > 31 时，为 13 + (PIM - 31)\n\n当留空或设为 0 时，VeraCrypt 将使用默认的 Argon2 PIM（12），此时占用 416 MiB 内存并执行 6 次迭代。\n\n当密码长度不足 20 个字符时，为了维持最低安全级别，Argon2 PIM 不能小于 12。\n当密码长度达到 20 个或更多字符时，Argon2 PIM 可以设为任意值。\n\n大于 12 的 Argon2 PIM 会增加内存占用（最高 1024 MiB），然后增加迭代次数，这会导致挂载变慢。较小的 Argon2 PIM（小于 12）会加快挂载速度，但如果密码强度不够，会降低安全性。</entry>
+    <entry lang="zh-cn" key="PIM_ARGON2_LARGE_WARNING">您选择的 Argon2 PIM 值大于 VeraCrypt 的默认值。\n请注意，这可能需要更多内存，并导致挂载速度显著变慢。</entry>
+    <entry lang="zh-cn" key="PIM_ARGON2_SMALL_WARNING">您选择的 Argon2 PIM 值小于 VeraCrypt 的默认值。请注意，如果您的密码强度不够，这可能导致安全性降低。\n\n您确认正在使用强密码吗？</entry>
+    <entry lang="zh-cn" key="PIM_ARGON2_REQUIRE_LONG_PASSWORD">密码必须包含 20 个或更多字符，才能使用指定的 Argon2 PIM。\n较短的密码只有在 Argon2 PIM 大于或等于 12 时才能使用。</entry>
+    <entry lang="zh-cn" key="LINUX_PREF_MOUNT_NTFS_WITH_NTFS3">使用 Linux 内核 ntfs3 驱动程序挂载 NTFS 卷</entry>
+    <entry lang="zh-cn" key="LINUX_PREF_MOUNT_NTFS_WITH_NTFS3_HELP">仅限 Linux。启用后，VeraCrypt 会使用 blkid -p 探测解密的虚拟设备，并使用 ntfs3 挂载检测到的 NTFS 文件系统，而不是默认的 NTFS 后端。如果 NTFS 检测失败，VeraCrypt 将使用正常的自动文件系统选择。如果 ntfs3 不可用或被发行版阻止，挂载可能会失败。此手动启用选项可以避免因冻结的用户空间 FUSE 文件系统导致的挂起或休眠卡顿。</entry>
+    <entry lang="zh-cn" key="LINUX_EMERGENCY_UNMOUNT_WARNING">卷 {0} 的正常卸载失败。当应用程序仍在卷上打开文件或目录，或者后端设备已断开连接导致挂载状态失效时，可能会发生这种情况。\n\n如果设备仍处于连接状态，请选择“否”，关闭使用该卷的应用程序，然后再次尝试卸载。\n\n如果设备已断开连接或挂载状态已失效，VeraCrypt 可以尝试执行紧急清理：惰性脱离文件系统，并移除或安排移除 VeraCrypt 内核对象。待处理的写入可能已失败，数据可能丢失，并且清理操作可能保持挂起状态，直到应用程序关闭打开的文件。再次使用前，请使用 fsck 或相应的修复工具检查文件系统。\n\n继续？</entry>
+    <entry lang="zh-cn" key="LINUX_EMERGENCY_UNMOUNTED">已对卷 {0} 启动紧急清理。如果卷已断开连接、挂载状态失效或存在待处理的写入操作，请在再次使用前使用 fsck 或相应的修复工具检查文件系统。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_WRITING_DATA">正在创建卷数据。请稍候。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_WRITING_BACKUP_HEADER">正在完成卷创建：写入备份卷头信息。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_FLUSHING_DATA">正在完成卷创建：将数据刷新到磁盘。对于大型卷或慢速/USB 存储设备，这可能需要几分钟时间。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_FINISHED">正在完成卷创建。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_ABORTED">卷创建已中止。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_ERROR">卷创建失败。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_PREPARING_TEMP_VOLUME">正在完成卷创建：挂载临时卷。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_PREPARING_TEMP_DEVICE">正在完成卷创建：准备临时设备。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_CREATING_FILESYSTEM">正在完成卷创建：使用 {0} 创建文件系统。</entry>
+    <entry lang="zh-cn" key="FORMAT_STAGE_DISMOUNTING_TEMP_VOLUME">正在完成卷创建：卸载临时卷。</entry>
+    <entry lang="en" key="MACOSX_APFS_SYNTHESIZED_DEVICE">The selected device '{0}' is an APFS synthesized container or volume and cannot be used as a raw VeraCrypt volume host.\n\nSelect the physical APFS store partition{1} instead.</entry>
+    <entry lang="en" key="MACOSX_DEVICE_SYSTEM_PARTITION">The selected device '{0}' is a macOS system/support partition and cannot be used as a VeraCrypt volume host.</entry>
+    <entry lang="en" key="MACOSX_APFS_SYSTEM_STORE">The selected APFS physical store '{0}' contains the currently mounted macOS system volume and cannot be used as a VeraCrypt volume host.</entry>
+    <entry lang="en" key="MACOSX_DEVICE_NOT_WRITABLE">macOS reports the selected device '{0}' as read-only. Select a writable physical partition or disk.</entry>
+    <entry lang="en" key="MACOSX_APFS_EROFS_HINT">macOS reported the selected device as read-only. If this is an APFS disk, make sure you selected the physical APFS store partition, not an APFS synthesized volume. Use Disk Utility or 'diskutil list' to identify the physical partition, then retry.</entry>
   </localization>
   <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:element name="VeraCrypt">

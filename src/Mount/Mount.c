@@ -663,6 +663,10 @@ static void InitMainDialog (HWND hwndDlg)
 			{
 				EnableMenuItem (GetMenu (hwndDlg), IDM_CREATE_HIDDEN_OS, MF_GRAYED);
 			}
+			else
+			{
+				EnableMenuItem (GetMenu (hwndDlg), IDM_REPAIR_EFI_BOOT_LOADER, MF_GRAYED);
+			}
 		}
 
 		// Disable menu item for changing system header key derivation algorithm until it's implemented
@@ -1308,19 +1312,9 @@ void SaveSettings (HWND hwndDlg)
 	NormalCursor ();
 }
 
-// Returns TRUE if system encryption or decryption had been or is in progress and has not been completed
-static BOOL SysEncryptionOrDecryptionRequired (void)
+static BOOL SysEncryptionOrDecryptionRequiredByCurrentStatus (void)
 {
 	/* If you update this function, revise SysEncryptionOrDecryptionRequired() in Tcformat.c as well. */
-
-	try
-	{
-		BootEncStatus = BootEncObj->GetStatus();
-	}
-	catch (Exception &e)
-	{
-		e.Show (MainDlg);
-	}
 
 	return (SystemEncryptionStatus == SYSENC_STATUS_ENCRYPTING
 		|| SystemEncryptionStatus == SYSENC_STATUS_DECRYPTING
@@ -1334,6 +1328,21 @@ static BOOL SysEncryptionOrDecryptionRequired (void)
 			)
 		)
 	);
+}
+
+// Returns TRUE if system encryption or decryption had been or is in progress and has not been completed
+static BOOL SysEncryptionOrDecryptionRequired (void)
+{
+	try
+	{
+		BootEncStatus = BootEncObj->GetStatus();
+	}
+	catch (Exception &e)
+	{
+		e.Show (MainDlg);
+	}
+
+	return SysEncryptionOrDecryptionRequiredByCurrentStatus ();
 }
 
 // Returns TRUE if system encryption master key is vulnerable
@@ -1464,10 +1473,12 @@ unsigned __int64 GetSysEncDeviceEncryptedPartSize (BOOL bSilent)
 static void PopulateSysEncContextMenu (HMENU popup, BOOL bToolsOnly)
 {
 	SystemDriveConfiguration config;
+	BOOL bRepairEfiBootLoaderApplicable = FALSE;
 	try
 	{
 		BootEncStatus = BootEncObj->GetStatus();
 		config = BootEncObj->GetSystemDriveConfiguration();
+		bRepairEfiBootLoaderApplicable = config.SystemPartition.IsGPT;
 	}
 	catch (Exception &e)
 	{
@@ -1501,6 +1512,8 @@ static void PopulateSysEncContextMenu (HMENU popup, BOOL bToolsOnly)
 		AppendMenuW (popup, MF_STRING, IDM_CREATE_RESCUE_DISK, GetString ("IDM_CREATE_RESCUE_DISK"));
 		AppendMenuW (popup, MF_STRING, IDM_VERIFY_RESCUE_DISK, GetString ("IDM_VERIFY_RESCUE_DISK"));
 		AppendMenuW (popup, MF_STRING, IDM_VERIFY_RESCUE_DISK_ISO, GetString ("IDM_VERIFY_RESCUE_DISK_ISO"));
+		if (bRepairEfiBootLoaderApplicable)
+			AppendMenuW (popup, MF_STRING, IDM_REPAIR_EFI_BOOT_LOADER, GetString ("IDM_REPAIR_EFI_BOOT_LOADER"));
 	}
 
 	if (!bToolsOnly)
@@ -2230,6 +2243,23 @@ static void PasswordChangeEnable (HWND hwndDlg, int button, int passwordId, BOOL
 	EnableWindow (GetDlgItem (hwndDlg, button), bEnable);
 }
 
+static BOOL CheckKdfOnlyPimForPassword (HWND hwndDlg, const Password *password, int pim, int old_pkcs5, int pkcs5)
+{
+	int pimValidationPkcs5 = pkcs5;
+
+	if (!password || password->Length == 0 || pim <= 0)
+		return TRUE;
+
+	if (pimValidationPkcs5 == 0)
+	{
+		pimValidationPkcs5 = old_pkcs5;
+		if (pimValidationPkcs5 == 0)
+			return TRUE;
+	}
+
+	return CheckPasswordLength (hwndDlg, password->Length, pim, FALSE, pimValidationPkcs5, TRUE, FALSE);
+}
+
 // implementation for support of change password operation in wait dialog mechanism
 
 typedef struct
@@ -2902,6 +2932,7 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 				&& pwdChangeDlgMode == PCDM_CHANGE_PASSWORD)
 			{
 				int bootPRF = pkcs5;
+				int pimValidationValue = pim;
 				if (bSysEncPwdChangeDlgMode)
 				{
 					try
@@ -2913,7 +2944,17 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 					catch(...)
 					{}
 				}
-				if (!CheckPasswordLength (hwndDlg, GetWindowTextLength(GetDlgItem (hwndDlg, IDC_PASSWORD)), pim, bSysEncPwdChangeDlgMode, bootPRF, FALSE, FALSE))
+				else if (bootPRF == 0)
+				{
+					bootPRF = old_pkcs5;
+					if (bootPRF == 0)
+					{
+						/* Both current and new KDFs are autodetected. ChangePwd() repeats this
+						PIM/password-length validation after opening the header with the detected KDF. */
+						pimValidationValue = 0;
+					}
+				}
+				if (!CheckPasswordLength (hwndDlg, GetWindowTextLength(GetDlgItem (hwndDlg, IDC_PASSWORD)), pimValidationValue, bSysEncPwdChangeDlgMode, bootPRF, FALSE, FALSE))
 					return 1;
 			}
 
@@ -2941,6 +2982,17 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 					newPassword.Length = (unsigned __int32) strlen ((char *) newPassword.Text);
 				else
 					return 1;
+			}
+
+			if (!bSysEncPwdChangeDlgMode
+				&& pwdChangeDlgMode == PCDM_CHANGE_PKCS5_PRF
+				&& !CheckKdfOnlyPimForPassword (hwndDlg, &newPassword, pim, old_pkcs5, pkcs5))
+			{
+				burn (&oldPassword, sizeof (oldPassword));
+				burn (&newPassword, sizeof (newPassword));
+				burn (&old_pim, sizeof (old_pim));
+				burn (&pim, sizeof (pim));
+				return 1;
 			}
 
 			WaitCursor ();
@@ -6415,6 +6467,121 @@ static void DecryptSystemDevice (HWND hwndDlg)
 		Warning ("SYSTEM_ENCRYPTION_IN_PROGRESS_ELSEWHERE", hwndDlg);
 }
 
+static void RepairEfiBootLoader (HWND hwndDlg)
+{
+	SystemDriveConfiguration config;
+	try
+	{
+		BootEncStatus = BootEncObj->GetStatus();
+		config = BootEncObj->GetSystemDriveConfiguration ();
+	}
+	catch (Exception &e)
+	{
+		e.Show (hwndDlg);
+		return;
+	}
+
+	if (!config.SystemPartition.IsGPT)
+	{
+		Warning ("EFI_BOOT_LOADER_REPAIR_NOT_APPLICABLE", hwndDlg);
+		return;
+	}
+
+	BOOL bSysEncRequired = SysEncryptionOrDecryptionRequired ();
+	BOOL bFinalizeDecryption = (SystemEncryptionStatus == SYSENC_STATUS_DECRYPTING
+		&& !BootEncStatus.SetupInProgress
+		&& !BootEncStatus.DriveEncrypted
+		&& !BootEncStatus.DriveMounted);
+
+	if (IsHiddenOSRunning()
+		|| BootEncStatus.SetupInProgress
+		|| BootEncStatus.DriveEncrypted
+		|| BootEncStatus.DriveMounted
+		|| (bSysEncRequired && !bFinalizeDecryption))
+	{
+		Warning ("EFI_BOOT_LOADER_REPAIR_BLOCKED", hwndDlg);
+		return;
+	}
+
+	if (AskWarnNoYes ("CONFIRM_REPAIR_EFI_BOOT_LOADER", hwndDlg) == IDNO)
+		return;
+
+	if (!CreateSysEncMutex ())
+	{
+		Warning ("SYSTEM_ENCRYPTION_IN_PROGRESS_ELSEWHERE", hwndDlg);
+		return;
+	}
+
+	LoadSysEncSettings ();
+	try
+	{
+		BootEncStatus = BootEncObj->GetStatus();
+		config = BootEncObj->GetSystemDriveConfiguration ();
+	}
+	catch (Exception &e)
+	{
+		CloseSysEncMutex ();
+		e.Show (hwndDlg);
+		return;
+	}
+
+	if (!config.SystemPartition.IsGPT)
+	{
+		CloseSysEncMutex ();
+		Warning ("EFI_BOOT_LOADER_REPAIR_NOT_APPLICABLE", hwndDlg);
+		return;
+	}
+
+	bSysEncRequired = SysEncryptionOrDecryptionRequiredByCurrentStatus ();
+	bFinalizeDecryption = (SystemEncryptionStatus == SYSENC_STATUS_DECRYPTING
+		&& !BootEncStatus.SetupInProgress
+		&& !BootEncStatus.DriveEncrypted
+		&& !BootEncStatus.DriveMounted);
+
+	if (IsHiddenOSRunning()
+		|| BootEncStatus.SetupInProgress
+		|| BootEncStatus.DriveEncrypted
+		|| BootEncStatus.DriveMounted
+		|| (bSysEncRequired && !bFinalizeDecryption))
+	{
+		CloseSysEncMutex ();
+		Warning ("EFI_BOOT_LOADER_REPAIR_BLOCKED", hwndDlg);
+		return;
+	}
+
+	WaitCursor ();
+	try
+	{
+		if (bFinalizeDecryption)
+			BootEncObj->Deinstall (true);
+		else
+			BootEncObj->RestoreSystemLoader ();
+	}
+	catch (Exception &e)
+	{
+		NormalCursor ();
+		CloseSysEncMutex ();
+		e.Show (hwndDlg);
+		return;
+	}
+
+	if (bFinalizeDecryption)
+	{
+		NormalCursor ();
+		if (!ClearSystemEncryptionStatus (hwndDlg))
+		{
+			CloseSysEncMutex ();
+			return;
+		}
+		ManageStartupSeqWiz (TRUE, L"");
+	}
+	else
+		NormalCursor ();
+
+	CloseSysEncMutex ();
+	Info ("EFI_BOOT_LOADER_REPAIR_SUCCESS", hwndDlg);
+}
+
 // Initiates the process of creation of a hidden operating system
 static void CreateHiddenOS (HWND hwndDlg)
 {
@@ -8480,6 +8647,9 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case IDM_VERIFY_RESCUE_DISK_ISO:
 			VerifyRescueDisk (hwndDlg, true);
 			break;
+		case IDM_REPAIR_EFI_BOOT_LOADER:
+			RepairEfiBootLoader (hwndDlg);
+			break;
 		case IDM_MOUNT_SYSENC_PART_WITHOUT_PBA:
 
 			if (CheckSysEncMountWithoutPBA (hwndDlg, L"", FALSE))
@@ -10050,10 +10220,40 @@ static void SystemFavoritesServiceSetStatus (DWORD status, DWORD waitHint = 0)
 	SetServiceStatus (SystemFavoritesServiceStatusHandle, &SystemFavoritesServiceStatus);
 }
 
+struct SystemFavoritesServiceBootLoaderUpdateOptions
+{
+	bool PostOOBE;
+	bool SetBootEntry;
+	bool ForceFirstBootEntry;
+	bool ForceSetNextBoot;
+};
+
+static BOOL GetSystemFavoritesServiceBootLoaderUpdateOptions (uint32 serviceFlags, BOOL bForce, SystemFavoritesServiceBootLoaderUpdateOptions &options)
+{
+	options.PostOOBE = !bForce;
+	options.SetBootEntry = true;
+	options.ForceFirstBootEntry = true;
+	options.ForceSetNextBoot = false;
+
+	if (bForce)
+		return TRUE;
+
+	if (serviceFlags & VC_SYSTEM_FAVORITES_SERVICE_CONFIG_DONT_UPDATE_LOADER)
+		return FALSE;
+
+	options.ForceSetNextBoot = (serviceFlags & VC_SYSTEM_FAVORITES_SERVICE_CONFIG_FORCE_SET_BOOTNEXT) != 0;
+	options.SetBootEntry = (serviceFlags & VC_SYSTEM_FAVORITES_SERVICE_CONFIG_DONT_SET_BOOTENTRY) == 0;
+	options.ForceFirstBootEntry = (serviceFlags & VC_SYSTEM_FAVORITES_SERVICE_CONFIG_DONT_FORCE_FIRST_BOOTENTRY) == 0;
+
+	return TRUE;
+}
+
 static void SystemFavoritesServiceUpdateLoaderProcessing (BOOL bForce)
 {
 	SystemFavoritesServiceLogInfo (L"SystemFavoritesServiceUpdateLoaderProcessing called");
-	if (bForce || !(BootEncObj->ReadServiceConfigurationFlags () & VC_SYSTEM_FAVORITES_SERVICE_CONFIG_DONT_UPDATE_LOADER))
+	SystemFavoritesServiceBootLoaderUpdateOptions updateOptions;
+	uint32 serviceFlags = BootEncObj->ReadServiceConfigurationFlags ();
+	if (GetSystemFavoritesServiceBootLoaderUpdateOptions (serviceFlags, bForce, updateOptions))
 	{
 		SystemFavoritesServiceLogInfo (L"SystemFavoritesServiceUpdateLoaderProcessing processing");
 		try
@@ -10063,23 +10263,7 @@ static void SystemFavoritesServiceUpdateLoaderProcessing (BOOL bForce)
 			if (!BootEncStatus.HiddenSystem)
 			{
 				// re-install our bootloader again in case the update process has removed it.
-				bool bForceSetNextBoot = false;
-				bool bSetBootentry = true;
-				bool bForceFirstBootEntry = true;
-				bool bPostOOBE = true;
-				if (bForce)
-					bPostOOBE = false;
-				else
-				{
-					uint32 flags = BootEncObj->ReadServiceConfigurationFlags ();
-					if (flags & VC_SYSTEM_FAVORITES_SERVICE_CONFIG_FORCE_SET_BOOTNEXT)
-						bForceSetNextBoot = true;
-					if (flags & VC_SYSTEM_FAVORITES_SERVICE_CONFIG_DONT_SET_BOOTENTRY)
-						bSetBootentry = false;
-					if (flags & VC_SYSTEM_FAVORITES_SERVICE_CONFIG_DONT_FORCE_FIRST_BOOTENTRY)
-						bForceFirstBootEntry = false;
-				}
-				BootEncryption bootEnc (NULL, bPostOOBE, bSetBootentry, bForceFirstBootEntry, bForceSetNextBoot);
+				BootEncryption bootEnc (NULL, updateOptions.PostOOBE, updateOptions.SetBootEntry, updateOptions.ForceFirstBootEntry, updateOptions.ForceSetNextBoot);
 				SystemFavoritesServiceLogInfo (L"SystemFavoritesServiceUpdateLoaderProcessing: InstallBootLoader calling");
 				bootEnc.InstallBootLoader (true);
 				SystemFavoritesServiceLogInfo (L"SystemFavoritesServiceUpdateLoaderProcessing: InstallBootLoader called");
@@ -10387,9 +10571,14 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, wchar_t *lpsz
 		try
 		{
 			BootEncryption::UpdateSetupConfigFile (true);
-			// re-install our bootloader again in case the upgrade process has removed it.
-			BootEncryption bootEnc (NULL, true);
-			bootEnc.InstallBootLoader (true);
+			SystemFavoritesServiceBootLoaderUpdateOptions updateOptions;
+			uint32 serviceFlags = ReadServiceConfigurationFlags ();
+			if (GetSystemFavoritesServiceBootLoaderUpdateOptions (serviceFlags, FALSE, updateOptions))
+			{
+				// re-install our bootloader again in case the upgrade process has removed it.
+				BootEncryption bootEnc (NULL, updateOptions.PostOOBE, updateOptions.SetBootEntry, updateOptions.ForceFirstBootEntry, updateOptions.ForceSetNextBoot);
+				bootEnc.InstallBootLoader (true);
+			}
 		}
 		catch (...)
 		{

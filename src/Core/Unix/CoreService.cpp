@@ -159,6 +159,18 @@ namespace VeraCrypt
 						continue;
 					}
 
+#ifdef TC_LINUX
+					// EmergencyDismountVolumeRequest
+					EmergencyDismountVolumeRequest *emergencyDismountRequest = dynamic_cast <EmergencyDismountVolumeRequest*> (request.get());
+					if (emergencyDismountRequest)
+					{
+						DismountVolumeResponse response;
+						response.DismountedVolumeInfo = Core->EmergencyDismountVolume (emergencyDismountRequest->MountedVolumeInfo);
+						response.Serialize (outputStream);
+						continue;
+					}
+#endif
+
 					// GetDeviceSectorSizeRequest
 					GetDeviceSectorSizeRequest *getDeviceSectorSizeRequest = dynamic_cast <GetDeviceSectorSizeRequest*> (request.get());
 					if (getDeviceSectorSizeRequest)
@@ -251,6 +263,14 @@ namespace VeraCrypt
 		DismountVolumeRequest request (mountedVolume, ignoreOpenFiles, syncVolumeInfo);
 		return SendRequest <DismountVolumeResponse> (request)->DismountedVolumeInfo;
 	}
+
+#ifdef TC_LINUX
+	shared_ptr <VolumeInfo> CoreService::RequestEmergencyDismountVolume (shared_ptr <VolumeInfo> mountedVolume)
+	{
+		EmergencyDismountVolumeRequest request (mountedVolume);
+		return SendRequest <DismountVolumeResponse> (request)->DismountedVolumeInfo;
+	}
+#endif
 
 	uint32 CoreService::RequestGetDeviceSectorSize (const DevicePath &devicePath)
 	{
@@ -503,9 +523,9 @@ namespace VeraCrypt
 		throw_sys_if (fcntl (outPipe->GetReadFD(), F_SETFL, O_NONBLOCK) == -1);
 		throw_sys_if (fcntl (errPipe.GetReadFD(), F_SETFL, O_NONBLOCK) == -1);
 
-		vector <char> buffer (4096), errOutput (4096);
-		buffer.clear ();
-		errOutput.clear ();
+		char buffer[4096];
+		vector <char> errOutput;
+		errOutput.reserve (4096);
 
 		Poller poller (outPipe->GetReadFD(), errPipe.GetReadFD());
 		int status, waitRes;
@@ -518,10 +538,10 @@ namespace VeraCrypt
 				ssize_t bytesRead = 0;
 				foreach (int fd, poller.WaitForData (timeout))
 				{
-					bytesRead = read (fd, &buffer[0], buffer.capacity());
+					bytesRead = read (fd, buffer, sizeof (buffer));
 					if (bytesRead > 0 && fd == errPipe.GetReadFD())
 					{
-						errOutput.insert (errOutput.end(), buffer.begin(), buffer.begin() + bytesRead);
+						errOutput.insert (errOutput.end(), buffer, buffer + bytesRead);
 
 						if (bytesRead > 5 && bytesRead < 80)  // Short message captured
 							timeout = 200;

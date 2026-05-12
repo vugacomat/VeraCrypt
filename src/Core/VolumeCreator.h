@@ -144,11 +144,26 @@ namespace VeraCrypt
 	{
 	public:
 
+		struct ProgressStage
+		{
+			enum Enum
+			{
+				NotStarted = 0,
+				WritingData,
+				WritingBackupHeader,
+				FlushingData,
+				Finished,
+				Aborted,
+				Error
+			};
+		};
+
 		struct ProgressInfo
 		{
 			bool CreationInProgress;
 			uint64 TotalSize;
 			uint64 SizeDone;
+			ProgressStage::Enum Stage;
 		};
 
 		struct KeyInfo
@@ -180,6 +195,7 @@ namespace VeraCrypt
 		shared_ptr <VolumeLayout> Layout;
 		shared_ptr <File> VolumeFile;
 		SharedVal <uint64> SizeDone;
+		SharedVal <int> Stage;
 		uint64 WriteOffset;
 		ProgressInfo mProgressInfo;
 

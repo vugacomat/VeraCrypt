@@ -20,6 +20,7 @@
 #include "Core/VolumeCreator.h"
 #include "UserPreferences.h"
 #include "UserInterfaceType.h"
+#include "Volume/Pkcs5Kdf.h"
 
 namespace VeraCrypt
 {
@@ -63,14 +64,17 @@ namespace VeraCrypt
 		CommandId::Enum ArgCommand;
 		bool ArgDisplayPassword;
 		shared_ptr <EncryptionAlgorithm> ArgEncryptionAlgorithm;
+#ifdef TC_LINUX
+		bool ArgEmergencyUnmount;
+#endif
 		shared_ptr <FilePath> ArgFilePath;
 		VolumeCreationOptions::FilesystemType::Enum ArgFilesystem;
 		bool ArgForce;
-		shared_ptr <Hash> ArgHash;
+		shared_ptr <Pkcs5Kdf> ArgHash;
 		shared_ptr <KeyfileList> ArgKeyfiles;
 		MountOptions ArgMountOptions;
 		shared_ptr <DirectoryPath> ArgMountPoint;
-		shared_ptr <Hash> ArgNewHash;
+		shared_ptr <Pkcs5Kdf> ArgNewHash;
 		shared_ptr <KeyfileList> ArgNewKeyfiles;
 		shared_ptr <VolumePassword> ArgNewPassword;
 		int ArgNewPim;

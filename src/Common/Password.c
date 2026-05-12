@@ -136,13 +136,32 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 
 BOOL CheckPasswordLength (HWND hwndDlg, unsigned __int32 passwordLength, int pim, BOOL bForBoot, int bootPRF, BOOL bSkipPasswordWarning, BOOL bSkipPimWarning)
 {
-	BOOL bootPimCondition = (bForBoot && (bootPRF != SHA512 && bootPRF != WHIRLPOOL))? TRUE : FALSE;
-	BOOL bCustomPimSmall = ((pim != 0) && (pim < (bootPimCondition? 98 : bootPRF == ARGON2? 12 : 485)))? TRUE : FALSE;
+	BOOL bootPimCondition = FALSE;
+	BOOL argon2PimCondition = FALSE;
+	int defaultPim;
+	BOOL bCustomPimSmall;
+	const char *pimRequireLongPasswordMessage = "PIM_REQUIRE_LONG_PASSWORD";
+	const char *pimLargeWarningMessage = "PIM_LARGE_WARNING";
+	const char *pimSmallWarningMessage = "PIM_SMALL_WARNING";
+#ifndef VC_DCS_DISABLE_ARGON2
+	argon2PimCondition = (bootPRF == ARGON2)? TRUE : FALSE;
+#endif
+	bootPimCondition = (!argon2PimCondition && bForBoot && (bootPRF != SHA512 && bootPRF != WHIRLPOOL))? TRUE : FALSE;
+	defaultPim = bootPimCondition? 98 : argon2PimCondition? 12 : 485;
+	bCustomPimSmall = ((pim != 0) && (pim < defaultPim))? TRUE : FALSE;
+	if (bootPimCondition)
+		pimRequireLongPasswordMessage = "BOOT_PIM_REQUIRE_LONG_PASSWORD";
+	else if (argon2PimCondition)
+	{
+		pimRequireLongPasswordMessage = "PIM_ARGON2_REQUIRE_LONG_PASSWORD";
+		pimLargeWarningMessage = "PIM_ARGON2_LARGE_WARNING";
+		pimSmallWarningMessage = "PIM_ARGON2_SMALL_WARNING";
+	}
 	if (passwordLength < PASSWORD_LEN_WARNING)
 	{
 		if (bCustomPimSmall)
 		{
-			Error (bootPimCondition? "BOOT_PIM_REQUIRE_LONG_PASSWORD": "PIM_REQUIRE_LONG_PASSWORD", hwndDlg);
+			Error (pimRequireLongPasswordMessage, hwndDlg);
 			return FALSE;
 		}
 
@@ -154,15 +173,15 @@ BOOL CheckPasswordLength (HWND hwndDlg, unsigned __int32 passwordLength, int pim
 #ifndef _DEBUG
 	else if (bCustomPimSmall)
 	{
-		if (!bSkipPimWarning && AskWarnNoYes ("PIM_SMALL_WARNING", hwndDlg) != IDYES)
+		if (!bSkipPimWarning && AskWarnNoYes (pimSmallWarningMessage, hwndDlg) != IDYES)
 			return FALSE;
 	}
 #endif
 
-	if ((pim != 0) && (pim > (bootPimCondition? 98 : bootPRF == ARGON2? 12 : 485)))
+	if ((pim != 0) && (pim > defaultPim))
 	{
 		// warn that mount/boot will take more time
-		Warning ("PIM_LARGE_WARNING", hwndDlg);
+		Warning (pimLargeWarningMessage, hwndDlg);
 
 	}
 	return TRUE;
@@ -404,6 +423,12 @@ int ChangePwd (const wchar_t *lpszVolume, Password *oldPassword, int old_pkcs5, 
 	if (pkcs5 != 0)
 		cryptoInfo->pkcs5 = pkcs5;
 
+	if (pkcs5 == 0 && old_pkcs5 == 0 && !CheckPasswordLength (hwndDlg, newPassword->Length, pim, FALSE, cryptoInfo->pkcs5, TRUE, FALSE))
+	{
+		nStatus = ERR_USER_ABORT;
+		goto error;
+	}
+
 	RandSetHashFunction (cryptoInfo->pkcs5);
 
 	NormalCursor();
@@ -567,4 +592,3 @@ error:
 
 	return nStatus;
 }
-

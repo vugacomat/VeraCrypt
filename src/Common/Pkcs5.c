@@ -1337,15 +1337,16 @@ int is_pkcs5_prf_supported (int pkcs5_prf_id, PRF_BOOT_TYPE bootType)
 }
 
 #ifndef VC_DCS_DISABLE_ARGON2
-void derive_key_argon2(const unsigned char *pwd, int pwd_len, const unsigned char *salt, int salt_len, uint32 iterations, uint32 memcost, unsigned char *dk, int dklen, volatile long *pAbortKeyDerivation)
+int derive_key_argon2(const unsigned char *pwd, int pwd_len, const unsigned char *salt, int salt_len, uint32 iterations, uint32 memcost, unsigned char *dk, int dklen, volatile long *pAbortKeyDerivation)
 {
+	int result;
 #if defined (DEVICE_DRIVER) && !defined(_M_ARM64)
 	NTSTATUS saveStatus = STATUS_INVALID_PARAMETER;
 	XSTATE_SAVE SaveState;
 	if (HasSAVX2())
 		saveStatus = KeSaveExtendedProcessorState(XSTATE_MASK_GSSE, &SaveState);
 #endif
-	if (0 != argon2id_hash_raw(
+	result = argon2id_hash_raw(
 		iterations, // number of iterations
 		memcost, // memory cost in KiB
 		1, // parallelism factor (number of threads)
@@ -1353,15 +1354,17 @@ void derive_key_argon2(const unsigned char *pwd, int pwd_len, const unsigned cha
 		salt, salt_len, // salt and its length
 		dk, dklen,// derived key and its length
 		pAbortKeyDerivation 
-	))
+	);
+	if (0 != result)
 	{
-		// If the Argon2 derivation fails, we fill the derived key with zeroes
+		// If the Argon2 derivation fails, ensure unchecked legacy callers cannot use stale data.
 		memset(dk, 0, dklen);
 	}
 #if defined (DEVICE_DRIVER) && !defined(_M_ARM64)
 	if (NT_SUCCESS(saveStatus))
 		KeRestoreExtendedProcessorState(&SaveState);
 #endif
+	return result;
 }
 
 /**

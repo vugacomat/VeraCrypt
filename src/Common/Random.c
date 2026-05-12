@@ -277,11 +277,14 @@ BOOL Randmix ()
 			digestSize = SHA256_DIGESTSIZE;
 			break;
 
-        #ifndef WOLFCRYPT_BACKEND	
-               case BLAKE2S:
-               case ARGON2: // in case of Argon2, we use Blake2s
-			digestSize = BLAKE2S_DIGESTSIZE;
-			break;
+        #ifndef WOLFCRYPT_BACKEND
+			case BLAKE2S:
+				digestSize = BLAKE2S_DIGESTSIZE;
+				break;
+
+			case ARGON2:
+				digestSize = BLAKE2B_DIGESTSIZE;
+				break;
 	
 		case WHIRLPOOL:
 			digestSize = WHIRLPOOL_DIGESTSIZE;
@@ -366,10 +369,13 @@ BOOL Randmix ()
 			break;
 
         #ifndef WOLFCRYPT_BACKEND
-               case BLAKE2S:
-               case ARGON2: // in case of Argon2, we use Blake2s
-			burn (&bctx, sizeof(bctx));
-			break;
+			case BLAKE2S:
+				burn (&bctx, sizeof(bctx));
+				break;
+
+			case ARGON2:
+				burn (&b2ctx, sizeof(b2ctx));
+				break;
 
 		case WHIRLPOOL:
 			burn (&wctx, sizeof(wctx));
@@ -974,4 +980,3 @@ BOOL FastPoll (void)
 
 	return TRUE;
 }
-

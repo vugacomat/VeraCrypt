@@ -28,8 +28,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,26,27,0
- PRODUCTVERSION 1,26,27,0
+ FILEVERSION 1,26,28,0
+ PRODUCTVERSION 1,26,28,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,11 +46,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "AM Crypto"
             VALUE "FileDescription", "VeraCrypt Format"
-            VALUE "FileVersion", "1.26.27"
+            VALUE "FileVersion", "1.26.28"
             VALUE "LegalTrademarks", "VeraCrypt"
             VALUE "OriginalFilename", "VeraCrypt Format.exe"
             VALUE "ProductName", "VeraCrypt"
-            VALUE "ProductVersion", "1.26.27"
+            VALUE "ProductVersion", "1.26.28"
         END
     END
     BLOCK "VarFileInfo"
@@ -230,7 +230,7 @@ BEGIN
     EDITTEXT        IDC_PASSWORD_DIRECT,75,2,198,14,ES_PASSWORD | ES_AUTOHSCROLL
     COMBOBOX        IDC_PKCS5_PRF_ID,75,17,131,90,CBS_DROPDOWNLIST | WS_TABSTOP
     EDITTEXT        IDC_PIM,75,32,42,14,ES_RIGHT | ES_PASSWORD | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
-    LTEXT           "(Empty or 0 for default iterations)",IDC_PIM_HELP,121,34,152,8,NOT WS_VISIBLE
+    LTEXT           "(Empty or 0 for defaults)",IDC_PIM_HELP,121,34,152,8,NOT WS_VISIBLE
     CONTROL         "&Display password",IDC_SHOW_PASSWORD_SINGLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,75,46,109,11,WS_EX_TRANSPARENT
     CONTROL         "U&se keyfiles",IDC_KEYFILES_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,75,57,106,11
     PUSHBUTTON      "&Keyfiles...",IDC_KEY_FILES,188,54,85,14
@@ -449,7 +449,7 @@ BEGIN
     CONTROL         "Display PIM",IDC_SHOW_PIM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,74,17,196,10
     LTEXT           "",IDC_BOX_HELP,0,32,273,142
     RTEXT           "Volume PIM:",IDT_PIM,1,3,69,8
-    LTEXT           "(Empty or 0 for default iterations)",IDC_PIM_HELP,120,3,153,8
+    LTEXT           "(Empty or 0 for defaults)",IDC_PIM_HELP,120,3,153,8
     LTEXT           "Information on PIM",IDC_LINK_PIM_INFO,0,179,273,8,SS_NOTIFY
 END
 

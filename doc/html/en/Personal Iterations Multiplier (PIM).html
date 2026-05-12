@@ -79,7 +79,7 @@ The time cost increases by 1 iteration for every 3 increments of PIM when PIM â‰
 <ul>
 <li>For system partition encryption (boot encryption) that uses SHA-256, BLAKE2s-256 or Streebog, <strong>200000</strong> iterations are used which is equivalent to a PIM value of <strong>98</strong>.</li>
 <li>For system encryption that uses SHA-512 or Whirlpool, <strong>500000</strong> iterations are used which is equivalent to a PIM value of <strong>485</strong>.</li>
-<li>For non-system encryption and file containers, all derivation algorithms will use <strong>500000</strong> iterations which is equivalent to a PIM value of <strong>485</strong>.</li>
+<li>For non-system encryption and file containers using PBKDF2-HMAC, <strong>500000</strong> iterations are used which is equivalent to a PIM value of <strong>485</strong>.</li>
 </ul>
 <li><strong>Argon2id defaults:</strong> Memory Cost = 416 MiB, Time Cost = 6 iterations (equivalent to PIM = 12)</li>
 </ul>
@@ -99,16 +99,16 @@ When creating a volume or when changing the password, the user has the possibili
 <div>During the creation of a volume or the encryption of the system, VeraCrypt forces the PIM value to be greater than or equal to a certain minimal value when the password is less than 20 characters. This check is done in order to ensure that, for short passwords,
  the security level is at least equal to the default level provided by an empty PIM.</div>
 <div>&nbsp;</div>
-<div>The PIM minimal value for short passwords is <strong>98</strong> for system encryption that doesn't use SHA-512 or Whirlpool and
-<strong>485</strong> for the other cases. For password with 20 characters and more, the PIM minimal value is
-<strong>1</strong>. In all cases, leaving the PIM empty or setting its value to 0 will make VeraCrypt use the default high number of iterations as explained in section
+<div>The PIM minimal value for short passwords is <strong>12</strong> for Argon2id volumes, <strong>98</strong> for system encryption that doesn't use SHA-512 or Whirlpool, and
+<strong>485</strong> for PBKDF2-HMAC in the other cases. For password with 20 characters and more, the PIM minimal value is
+<strong>1</strong>. In all cases, leaving the PIM empty or setting its value to 0 will make VeraCrypt use the default KDF parameters as explained in section
 <a href="Header%20Key%20Derivation.html">
 Header Key Derivation</a>.</div>
 <div><br>
 Motivations behind using a custom PIM value can be:<br>
 <ul>
 <li>Add an extra secret parameter (PIM) that an attacker will have to guess </li><li>Increase security level by using large PIM values to thwart future development of brute force attacks.
-</li><li>Speeding up booting or mounting through the use of a small PIM value (less than 98 for system encryption that doesn't use SHA-512 or Whirlpool and less than 485 for the other cases)
+</li><li>Speeding up booting or mounting through the use of a small PIM value (less than 12 for Argon2id volumes, less than 98 for system encryption that doesn't use SHA-512 or Whirlpool, and less than 485 for PBKDF2-HMAC in the other cases)
 </li></ul>
 <p>The screenshots below show the step to mount a volume using a PIM equal to 231:</p>
 <table style="margin-left:auto; margin-right:auto">

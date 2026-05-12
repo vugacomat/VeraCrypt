@@ -205,7 +205,7 @@ static int CreateVolumeInternal(const VeraCryptFormatOptions* options)
 
 	if (options->password)
 	{
-		if (!CheckPasswordLength(NULL, (int)strlen(options->password), options->pim, FALSE, 0, TRUE, TRUE))
+		if (!CheckPasswordLength(NULL, (int)strlen(options->password), options->pim, FALSE, hash_algo, TRUE, TRUE))
 		{
 			return VCF_ERROR_PASSWORD_POLICY;
 		}

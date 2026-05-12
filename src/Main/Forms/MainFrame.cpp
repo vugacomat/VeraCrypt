@@ -651,7 +651,7 @@ namespace VeraCrypt
 			MountOptions mountOptions (GetPreferences().DefaultMountOptions);
 			if (CmdLine->ArgHash)
 			{
-				mountOptions.Kdf = Pkcs5Kdf::GetAlgorithm (*CmdLine->ArgHash);
+				mountOptions.Kdf = CmdLine->ArgHash;
 			}
 			if (CmdLine->ArgPim > 0)
 			{
@@ -676,7 +676,7 @@ namespace VeraCrypt
 			MountOptions mountOptions (GetPreferences().DefaultMountOptions);
 			if (CmdLine->ArgHash)
 			{
-				mountOptions.Kdf = Pkcs5Kdf::GetAlgorithm (*CmdLine->ArgHash);
+				mountOptions.Kdf = CmdLine->ArgHash;
 			}
 			if (CmdLine->ArgPim > 0)
 			{
@@ -707,7 +707,7 @@ namespace VeraCrypt
 		mountOptions.Path = GetSelectedVolumePath();
 		if (CmdLine->ArgHash)
 		{
-			mountOptions.Kdf = Pkcs5Kdf::GetAlgorithm (*CmdLine->ArgHash);
+			mountOptions.Kdf = CmdLine->ArgHash;
 		}
 		if (CmdLine->ArgPim > 0)
 		{
@@ -962,7 +962,7 @@ namespace VeraCrypt
 			MountOptions mountOptions (GetPreferences().DefaultMountOptions);
 			if (CmdLine->ArgHash)
 			{
-				mountOptions.Kdf = Pkcs5Kdf::GetAlgorithm (*CmdLine->ArgHash);
+				mountOptions.Kdf = CmdLine->ArgHash;
 			}
 			if (CmdLine->ArgPim > 0)
 			{

@@ -107,7 +107,14 @@ namespace VeraCrypt
 			if (kdf && (kdf->GetName() != pkcs5->GetName()))
 				continue;
 
-			pkcs5->DeriveKey (headerKey, password, pim, salt);
+			int derivationResult = pkcs5->DeriveKey (headerKey, password, pim, salt);
+			if (derivationResult != 0)
+			{
+				if (!kdf)
+					continue;
+
+				throw ExternalException (SRC_POS, pkcs5->GetDerivationFailureMessage (derivationResult));
+			}
 
 			foreach (shared_ptr <EncryptionMode> mode, encryptionModes)
 			{
